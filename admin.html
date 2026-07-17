@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - HC Steno Wala</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <nav id="main-navbar"></nav>
+
+    <!-- Access Denied -->
+    <div id="access-denied" class="container" style="padding-top: 150px; text-align: center; display: none;">
+        <h1><span style="color: var(--error);">403</span> Access Denied</h1>
+        <p>You do not have administrator privileges to view this page.</p>
+        <button class="btn btn-primary mt-4" onclick="window.location.href='dashboard.html'">Return to Dashboard</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="container" style="padding-top: 80px; display: none;">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>एड्मन पैनल (Admin Panel)</h1>
+                <p class="text-secondary">वेबसाइट का प्रबंधन करें</p>
+            </div>
+            <div>
+                <select id="admin-section-select" class="form-control" onchange="showAdminSection(this.value)" style="min-width: 200px;">
+                    <option value="section-dashboard">📊 Dashboard</option>
+                    <option value="section-tests">📝 Manage Tests</option>
+                    <option value="section-users">👥 Manage Users</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Section: Dashboard -->
+        <div id="section-dashboard" class="admin-section">
+            <div class="stats-row">
+                <div class="card" style="border-left: 4px solid var(--primary-light)">
+                    <div class="stat-value" id="stat-users"><span class="spinner"></span></div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="card" style="border-left: 4px solid var(--accent)">
+                    <div class="stat-value" id="stat-tests"><span class="spinner"></span></div>
+                    <div class="stat-label">Total Tests</div>
+                </div>
+                <div class="card" style="border-left: 4px solid var(--success)">
+                    <div class="stat-value" id="stat-premium"><span class="spinner"></span></div>
+                    <div class="stat-label">Premium Users</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Tests -->
+        <div id="section-tests" class="admin-section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>All Tests</h3>
+                    <button class="btn btn-primary" onclick="openTestModal()">+ Add New Test</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Language</th>
+                                <th>Speed</th>
+                                <th>Premium</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-tests-body">
+                            <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Users -->
+        <div id="section-users" class="admin-section" style="display: none;">
+            <div class="card">
+                <h3>Registered Users</h3>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Mobile</th>
+                                <th>Role</th>
+                                <th>Premium</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-body">
+                            <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Test Modal -->
+    <div id="test-modal" class="modal-overlay" style="display:none;">
+        <div class="modal card" style="max-width: 600px; width: 95%;">
+            <div class="modal-header">
+                <h2 id="test-modal-title">Add New Test</h2>
+                <button class="btn btn-outline" onclick="closeModal('test-modal')">Close</button>
+            </div>
+            <div class="modal-body">
+                <form id="test-form" onsubmit="saveTest(event)">
+                    <input type="hidden" id="test-id">
+                    
+                    <div class="form-group">
+                        <label>Test Name</label>
+                        <input type="text" id="test-name" class="form-control" required>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Language</label>
+                            <select id="test-language" class="form-control" required>
+                                <option value="Hindi">Hindi</option>
+                                <option value="English">English</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Dictation Speed (WPM)</label>
+                            <select id="test-speed" class="form-control" required>
+                                <option value="60WPM">60 WPM</option>
+                                <option value="70WPM">70 WPM</option>
+                                <option value="75WPM">75 WPM</option>
+                                <option value="80WPM">80 WPM</option>
+                                <option value="100WPM">100 WPM</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Total Words</label>
+                            <input type="number" id="test-words" class="form-control" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Date (YYYY-MM-DD)</label>
+                            <input type="date" id="test-date" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Audio Duration (e.g. 5 Min)</label>
+                            <input type="text" id="test-audio-dur" class="form-control" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Type Duration (e.g. 45Mins)</label>
+                            <input type="text" id="test-type-dur" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Audio URL (Optional, for dictation tests)</label>
+                        <input type="url" id="test-audio-url" class="form-control" placeholder="https://...">
+                        <small class="text-secondary">Upload audio to Firebase Storage and paste URL here</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Original Text Content (Required for comparison)</label>
+                        <textarea id="test-text" class="form-control" rows="6" required></textarea>
+                    </div>
+                    
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="test-premium" style="width: 20px; height: 20px;">
+                        <label style="margin: 0;">Is Premium Test?</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Save Test</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

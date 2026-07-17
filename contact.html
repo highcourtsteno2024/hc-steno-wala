@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>संपर्क करें - HC Steno Wala</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <nav id="main-navbar"></nav>
+
+    <div class="container" style="padding-top: 80px;">
+        <div class="page-header text-center">
+            <h1>संपर्क करें / Contact Us</h1>
+            <p class="text-secondary">किसी भी सहायता के लिए बेझिझक हमसे संपर्क करें</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px;">
+            <!-- Contact Info -->
+            <div class="card" style="display: flex; flex-direction: column; gap: 20px;">
+                <h3>संपर्क विवरण</h3>
+                
+                <div style="display: flex; align-items: flex-start; gap: 15px;">
+                    <div style="font-size: 24px;">📍</div>
+                    <div>
+                        <h4 style="margin: 0; margin-bottom: 5px;">पता</h4>
+                        <p style="margin: 0; color: var(--text-secondary);">Jodhpur, Rajasthan</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: flex-start; gap: 15px;">
+                    <div style="font-size: 24px;">📱</div>
+                    <div>
+                        <h4 style="margin: 0; margin-bottom: 5px;">मोबाइल</h4>
+                        <p style="margin: 0;"><a href="tel:9799867629" style="color: var(--accent); text-decoration: none;">9799867629</a></p>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: flex-start; gap: 15px;">
+                    <div style="font-size: 24px;">📧</div>
+                    <div>
+                        <h4 style="margin: 0; margin-bottom: 5px;">ईमेल</h4>
+                        <p style="margin: 0;"><a href="mailto:highcourtsteno2024@gmail.com" style="color: var(--accent); text-decoration: none;">highcourtsteno2024@gmail.com</a></p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 15px;">
+                    <div style="font-size: 24px;">🕐</div>
+                    <div>
+                        <h4 style="margin: 0; margin-bottom: 5px;">समय</h4>
+                        <p style="margin: 0; color: var(--text-secondary);">Monday-Saturday, 9:00 AM - 8:00 PM</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 15px;">हमें फॉलो करें</h4>
+                    <div style="display: flex; gap: 15px;">
+                        <a href="#" class="btn btn-outline" style="border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 20px;">📱</a>
+                        <a href="#" class="btn btn-outline" style="border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 20px;">▶️</a>
+                        <a href="#" class="btn btn-outline" style="border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 20px;">💬</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="card">
+                <form id="contact-form" onsubmit="submitContact(event)">
+                    <div class="form-group">
+                        <label>नाम</label>
+                        <input type="text" class="form-control" id="contact-name" required placeholder="अपना नाम दर्ज करें">
+                    </div>
+                    <div class="form-group">
+                        <label>मोबाइल नंबर</label>
+                        <input type="tel" class="form-control" id="contact-mobile" required pattern="[0-9]{10}" placeholder="10 अंकों का मोबाइल नंबर">
+                    </div>
+                    <div class="form-group">
+                        <label>विषय</label>
+                        <select class="form-control" id="contact-subject" required>
+                            <option value="">विषय चुनें...</option>
+                            <option value="General">सामान्य पूछताछ (General Inquiry)</option>
+                            <option value="Technical">तकनीकी समस्या (Technical Issue)</option>
+                            <option value="Premium">प्रीमियम सदस्यता (Premium Info)</option>
+                            <option value="Feedback">सुझाव (Feedback)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>संदेश</label>
+                        <textarea class="form-control" id="contact-message" rows="5" required placeholder="अपना संदेश यहाँ लिखें..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">संदेश भेजें</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Map -->
+        <div class="card" style="margin-top: 40px; padding: 0; overflow: hidden; height: 350px;">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d114498.40632599222!2d72.93779532575294!3d26.270414341991443!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39418c4eaa06fcb9%3A0x6bba847c11f71587!2sJodhpur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        
+        <footer style="margin-top: 40px; padding: 20px 0; text-align: center; border-top: 1px solid var(--border); color: var(--text-secondary);">
+            <p>&copy; 2024-2026 HC Steno Wala. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('main-navbar').innerHTML = createNavbar('contact');
+            const user = getCurrentUser();
+            if (user) {
+                initNavbar();
+                document.getElementById('contact-name').value = user.name || '';
+                document.getElementById('contact-mobile').value = user.mobile || '';
+            }
+        });
+
+        async function submitContact(e) {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button');
+            const origText = btn.innerText;
+            btn.innerText = 'भेज रहा है...';
+            btn.disabled = true;
+            
+            try {
+                await window.db.collection('contacts').add({
+                    name: document.getElementById('contact-name').value,
+                    mobile: document.getElementById('contact-mobile').value,
+                    subject: document.getElementById('contact-subject').value,
+                    message: document.getElementById('contact-message').value,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'new'
+                });
+                
+                showToast("आपका संदेश सफलतापूर्वक भेज दिया गया है। हम जल्द ही आपसे संपर्क करेंगे।", "success");
+                e.target.reset();
+            } catch (error) {
+                console.error(error);
+                showToast("संदेश भेजने में त्रुटि। कृपया पुनः प्रयास करें।", "error");
+            } finally {
+                btn.innerText = origText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

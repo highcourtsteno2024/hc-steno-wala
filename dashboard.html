@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>डैशबोर्ड - HC Steno Wala</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <nav id="main-navbar"></nav>
+
+    <div class="container" style="padding-top: 80px;">
+        <div class="page-header">
+            <h1 id="welcome-msg">डैशबोर्ड</h1>
+            <p class="text-secondary">HC Steno Wala पोर्टल पर आपका स्वागत है।</p>
+        </div>
+
+        <div class="stats-row">
+            <div class="card" style="border-left: 4px solid var(--primary-light)">
+                <div class="stat-value" id="stat-total-tests"><span class="spinner"></span></div>
+                <div class="stat-label">📝 कुल टेस्ट (Total Tests)</div>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--secondary)">
+                <div class="stat-value" id="stat-attempted"><span class="spinner"></span></div>
+                <div class="stat-label">✅ दिए गए टेस्ट (Attempted)</div>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--accent)">
+                <div class="stat-value" id="stat-avg-score"><span class="spinner"></span></div>
+                <div class="stat-label">📊 औसत अंक (Average Score)</div>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--success)">
+                <div class="stat-value" id="stat-best-rank"><span class="spinner"></span></div>
+                <div class="stat-label">🏆 सर्वश्रेष्ठ रैंक (Best Rank)</div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+            <button class="btn btn-primary" onclick="window.location.href='steno-tests.html'">Start New Test ▶</button>
+            <button class="btn btn-secondary" onclick="window.location.href='scorecard.html'">View Results 📊</button>
+            <button class="btn btn-outline" onclick="window.location.href='contact.html'">Contact Us 📞</button>
+        </div>
+
+        <div class="card guidelines-section">
+            <h2>वेबसाइट पोर्टल से संबंधित विशेष आवश्यक सूचना एवं दिशा निर्देश</h2>
+            <hr style="border: 0; height: 1px; background: var(--border); margin: 15px 0;">
+            <ul>
+                <li>यह पोर्टल पूर्ण रूप से ऑनलाइन है, अतः टेस्ट देते समय अपने कंप्यूटर या मोबाइल को इंटरनेट से कनेक्ट रखें।</li>
+                <li>एक समय में अपनी आईडी को केवल एक ही डिवाइस पर लॉग इन रखें। एक से अधिक डिवाइस पर उपयोग करने से टेस्ट सबमिट होने में समस्या आ सकती है।</li>
+                <li>टेस्ट पूरा होने और सबमिट हो जाने के बाद हमेशा 'Home' बटन पर क्लिक करके वापस आएं।</li>
+                <li>टेस्ट के दौरान कभी भी अपने ब्राउज़र का 'Back' बटन उपयोग न करें, अन्यथा आपका टेस्ट रद्द हो सकता है।</li>
+                <li>हिंदी टाइपिंग टेस्ट के लिए पोर्टल 'कृतिदेव (Kruti Dev)' फॉन्ट का समर्थन करता है। कृपया अपने सिस्टम में कृतिदेव फॉन्ट इंस्टॉल रखें।</li>
+                <li>नियमित अभ्यास करें। यह पोर्टल आपकी गति और सटीकता बढ़ाने के उद्देश्य से बनाया गया है।</li>
+                <li>किसी भी प्रकार की तकनीकी सहायता के लिए आप हमसे संपर्क पृष्ठ (Contact Us) के माध्यम से या मोबाइल नंबर 9799867629 पर संपर्क कर सकते हैं।</li>
+                <li>यह सामग्री केवल आपके अभ्यास के लिए है, किसी आधिकारिक परीक्षा का प्रतिरूप होने का दावा नहीं करती है।</li>
+            </ul>
+        </div>
+        
+        <div class="card mt-4">
+            <h3>Recent Tests / हाल के टेस्ट</h3>
+            <div class="table-responsive mt-3">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>दिनांक</th>
+                            <th>टेस्ट का नाम</th>
+                            <th>अंक (%)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-tests-body">
+                        <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

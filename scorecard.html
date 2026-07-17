@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>स्कोरकार्ड - HC Steno Wala</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <nav id="main-navbar"></nav>
+
+    <div class="container" style="padding-top: 80px;">
+        <div class="page-header">
+            <h1>स्कोरकार्ड / परिणाम</h1>
+            <p class="text-secondary">आपके द्वारा दिए गए सभी टेस्ट्स का परिणाम यहाँ देखें</p>
+        </div>
+
+        <div class="stats-row" id="performance-summary">
+            <!-- Populated via JS -->
+            <div class="card"><div class="stat-value"><span class="spinner"></span></div><div class="stat-label">Loading...</div></div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>दिनांक</th>
+                            <th>टेस्ट का नाम</th>
+                            <th>कुल शब्द</th>
+                            <th>टाइप किए</th>
+                            <th>गलत</th>
+                            <th>अंक (%)</th>
+                            <th>रैंक</th>
+                            <th>उत्तर पत्रक</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-table-body">
+                        <tr><td colspan="9" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Answer Sheet Modal -->
+    <div id="answer-modal" class="modal-overlay" style="display:none;">
+        <div class="modal card" style="max-width: 900px; width: 95%;">
+            <div class="modal-header">
+                <h2>उत्तर पत्रक (Answer Sheet)</h2>
+                <button class="btn btn-outline" onclick="closeModal('answer-modal')">Close</button>
+            </div>
+            <div class="modal-body" style="display: flex; gap: 20px; max-height: 60vh; overflow-y: auto;">
+                <div style="flex:1;">
+                    <h3>Original Text</h3>
+                    <div id="original-text-display" style="background: var(--bg-dark); padding: 15px; border-radius: 8px;"></div>
+                </div>
+                <div style="flex:1;">
+                    <h3>Your Text</h3>
+                    <div id="user-text-display" style="background: var(--bg-dark); padding: 15px; border-radius: 8px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compare Modal -->
+    <div id="compare-modal" class="modal-overlay" style="display:none;">
+        <div class="modal card" style="max-width: 900px; width: 95%;">
+            <div class="modal-header">
+                <h2>तुलना (Compare)</h2>
+                <button class="btn btn-outline" onclick="closeModal('compare-modal')">Close</button>
+            </div>
+            <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                <div id="compare-display" style="background: var(--bg-dark); padding: 15px; border-radius: 8px; line-height: 1.8;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/scorecard.js"></script>
+</body>
+</html>
