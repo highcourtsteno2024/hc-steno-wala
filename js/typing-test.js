@@ -67,15 +67,6 @@ async function loadTestData(id) {
             const audioEl = document.getElementById('test-audio');
             audioEl.src = finalUrl;
             
-            // Auto-play audio after 3 seconds
-            setTimeout(() => {
-                showToast("🔊 डिक्टेशन शुरू हो रहा है...", "success");
-                audioEl.play().catch(e => {
-                    console.error("Auto-play blocked by browser:", e);
-                    showToast("Please interact with the page to play audio.", "error");
-                });
-            }, 3000);
-            
         } else {
             document.getElementById('no-audio-msg').style.display = 'block';
         }
@@ -104,6 +95,30 @@ async function loadTestData(id) {
     } finally {
         hideLoading();
     }
+}
+
+function startDictation() {
+    const btn = document.getElementById('btn-start-dictation');
+    btn.disabled = true;
+    
+    let countdown = 3;
+    btn.innerText = `Starting in ${countdown}...`;
+    
+    const interval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            btn.innerText = `Starting in ${countdown}...`;
+        } else {
+            clearInterval(interval);
+            btn.style.display = 'none';
+            const audio = document.getElementById('test-audio');
+            audio.play().catch(e => {
+                console.error(e);
+                showToast("Browser blocked audio. Please click play manually if needed.", "error");
+            });
+            showToast("🔊 डिक्टेशन शुरू हो गया है! अपना नोटबुक तैयार रखें।", "success");
+        }
+    }, 1000);
 }
 
 function updateTimerDisplay() {
