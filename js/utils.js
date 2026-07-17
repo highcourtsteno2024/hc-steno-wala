@@ -332,7 +332,11 @@ function createNavbar(activePage) {
  * @param {string} activePage - Current page identifier
  */
 function initNavbar(activePage) {
-  // HTML is already injected by page scripts, so just attach event listeners
+  // Add navbar class if missing
+  const navEl = document.getElementById('main-navbar');
+  if (navEl && !navEl.classList.contains('navbar')) {
+      navEl.classList.add('navbar');
+  }
 
   // Hamburger toggle
   const hamburger = document.getElementById('hamburger-btn');
