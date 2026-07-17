@@ -162,9 +162,10 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Audio URL (Optional, for dictation tests)</label>
-                        <input type="url" id="test-audio-url" class="form-control" placeholder="https://...">
-                        <small class="text-secondary">Paste your Google Drive Audio Link here</small>
+                        <label>Audio File (Direct Upload from PC - Recommended)</label>
+                        <input type="file" id="test-audio-file" class="form-control" accept="audio/*" onchange="handleAudioUpload(event)">
+                        <small class="text-secondary" id="audio-upload-status">Select an MP3/WAV/AAC file to upload to Firebase.</small>
+                        <input type="hidden" id="test-audio-url">
                     </div>
                     
                     <div class="form-group">
