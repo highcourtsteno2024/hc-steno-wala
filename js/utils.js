@@ -294,7 +294,6 @@ function createNavbar(activePage) {
     : '';
 
   return `
-    <nav class="navbar" id="main-navbar">
       <a href="dashboard.html" class="navbar-brand">
         <img src="assets/logo.png" alt="HC Steno Wala Logo">
         <span>HC Steno Wala</span>
@@ -325,7 +324,6 @@ function createNavbar(activePage) {
           <span></span>
         </button>
       </div>
-    </nav>
   `;
 }
 
@@ -334,9 +332,7 @@ function createNavbar(activePage) {
  * @param {string} activePage - Current page identifier
  */
 function initNavbar(activePage) {
-  // Navbar HTML inject
-  const navHtml = createNavbar(activePage);
-  document.body.insertAdjacentHTML('afterbegin', navHtml);
+  // HTML is already injected by page scripts, so just attach event listeners
 
   // Hamburger toggle
   const hamburger = document.getElementById('hamburger-btn');
