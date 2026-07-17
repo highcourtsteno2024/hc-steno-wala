@@ -78,7 +78,7 @@ async function loadTestData(id) {
         
     } catch (error) {
         console.error(error);
-        showToast("Failed to load test data", "error");
+        showToast("Error: " + error.message, "error");
     } finally {
         hideLoading();
     }
