@@ -100,6 +100,15 @@ async function loadTestData(id) {
 function startDictation() {
     const btn = document.getElementById('btn-start-dictation');
     btn.disabled = true;
+    const audio = document.getElementById('test-audio');
+    
+    // Trick to unlock audio on strict browsers: Play and pause immediately on click
+    audio.muted = true;
+    audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = false;
+    }).catch(e => console.log("Unlock warning:", e));
     
     let countdown = 3;
     btn.innerText = `Starting in ${countdown}...`;
@@ -111,10 +120,9 @@ function startDictation() {
         } else {
             clearInterval(interval);
             btn.style.display = 'none';
-            const audio = document.getElementById('test-audio');
             audio.play().catch(e => {
                 console.error(e);
-                showToast("Browser blocked audio. Please click play manually if needed.", "error");
+                showToast("Error: " + (e.message || e.name) + ". Please check Google Drive link permissions.", "error");
             });
             showToast("🔊 डिक्टेशन शुरू हो गया है! अपना नोटबुक तैयार रखें।", "success");
         }
