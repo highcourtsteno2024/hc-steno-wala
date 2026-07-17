@@ -53,7 +53,17 @@ async function loadTestData(id) {
         // Setup Audio if available
         if (testData.audioUrl) {
             document.getElementById('audio-container').style.display = 'block';
-            document.getElementById('test-audio').src = testData.audioUrl;
+            
+            let finalUrl = testData.audioUrl;
+            // Convert Google Drive view links to direct streaming links
+            if (finalUrl.includes('drive.google.com')) {
+                const match = finalUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || finalUrl.match(/id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    finalUrl = `https://drive.google.com/uc?export=download&id=${match[1]}`;
+                }
+            }
+            
+            document.getElementById('test-audio').src = finalUrl;
         } else {
             document.getElementById('no-audio-msg').style.display = 'block';
         }
