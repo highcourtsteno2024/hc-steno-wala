@@ -143,11 +143,15 @@ function openTestModal() {
     document.getElementById('test-form').reset();
     document.getElementById('test-id').value = '';
     document.getElementById('test-modal-title').innerText = 'Add New Test';
-    document.getElementById('test-modal').style.display = 'flex';
+    const modal = document.getElementById('test-modal');
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 10);
 }
 
 function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
+    const modal = document.getElementById(id);
+    modal.classList.remove('active');
+    setTimeout(() => modal.style.display = 'none', 300);
 }
 
 async function saveTest(e) {
@@ -212,7 +216,9 @@ async function editTest(id) {
             document.getElementById('test-premium').checked = !!data.isPremium;
             
             document.getElementById('test-modal-title').innerText = 'Edit Test';
-            document.getElementById('test-modal').style.display = 'flex';
+            const modal = document.getElementById('test-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
         }
     } catch (error) {
         console.error(error);
