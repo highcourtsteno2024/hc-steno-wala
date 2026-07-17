@@ -19,23 +19,12 @@ const firebaseConfig = {
 
   // authDomain: Firebase Authentication के लिए डोमेन।
   // फॉर्मेट: your-project-id.firebaseapp.com
-  authDomain: 'your-project.firebaseapp.com',
-
-  // projectId: आपके Firebase प्रोजेक्ट की यूनिक ID।
-  // Firebase Console > Project Settings > General में मिलेगी।
-  projectId: 'your-project-id',
-
-  // storageBucket: Firebase Storage बकेट का URL।
-  // फाइल्स (images, audio आदि) स्टोर करने के लिए।
-  storageBucket: 'your-project.appspot.com',
-
-  // messagingSenderId: Cloud Messaging के लिए Sender ID।
-  // Push Notifications भेजने के लिए ज़रूरी है।
-  messagingSenderId: 'YOUR_SENDER_ID',
-
-  // appId: आपके Firebase ऐप की यूनिक App ID।
-  // Firebase Console > Project Settings > General में मिलेगी।
-  appId: 'YOUR_APP_ID'
+    apiKey: "AIzaSyA9HlYg9SNfxYGwiD2GjOM25Rz3OHhacZY",
+    authDomain: "hc-steno-wala-d4a15.firebaseapp.com",
+    projectId: "hc-steno-wala-d4a15",
+    storageBucket: "hc-steno-wala-d4a15.firebasestorage.app",
+    messagingSenderId: "195028129044",
+    appId: "1:195028129044:web:2b824c29f5ec0875cc9e01"
 };
 
 // ── Firebase Initialize ───────────────────────────────────────────────
