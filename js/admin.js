@@ -71,7 +71,7 @@ async function loadTests() {
         }
         
         let html = '';
-            const t = doc.data();
+        tests.forEach(t => {
             html += `
                 <tr>
                     <td>${escapeHtml(t.name)}</td>
@@ -80,8 +80,8 @@ async function loadTests() {
                     <td>${t.speed}</td>
                     <td>${t.isPremium ? '<span class="badge badge-premium">Yes</span>' : '<span class="badge badge-free">No</span>'}</td>
                     <td>
-                        <button class="btn btn-secondary btn-sm" onclick="editTest('${doc.id}')">Edit</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteTest('${doc.id}')">Delete</button>
+                        <button class="btn btn-secondary btn-sm" onclick="editTest('${t.id}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteTest('${t.id}')">Delete</button>
                     </td>
                 </tr>
             `;
