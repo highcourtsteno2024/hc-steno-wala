@@ -162,14 +162,19 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Audio URL (Optional, for dictation tests)</label>
-                        <input type="url" id="test-audio-url" class="form-control" placeholder="https://...">
-                        <small class="text-secondary">Upload audio to Firebase Storage and paste URL here</small>
+                        <label>Audio File (Direct Upload from PC)</label>
+                        <input type="file" id="test-audio-file" class="form-control" accept="audio/*" onchange="handleAudioUpload(event)">
+                        <small class="text-secondary" id="audio-upload-status">Select an MP3/WAV file to upload to Firebase.</small>
+                        <input type="hidden" id="test-audio-url">
                     </div>
                     
                     <div class="form-group">
                         <label>Original Text Content (Required for comparison)</label>
-                        <textarea id="test-text" class="form-control" rows="6" required></textarea>
+                        <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                            <input type="file" id="test-text-file" class="form-control" accept=".txt" onchange="handleTextUpload(event)" style="flex: 1; padding: 5px;">
+                            <small style="align-self: center;" class="text-secondary">Upload .txt file to auto-fill</small>
+                        </div>
+                        <textarea id="test-text" class="form-control" rows="6" placeholder="Or type/paste text here..." required></textarea>
                     </div>
                     
                     <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
