@@ -18,10 +18,20 @@ async function loadStats(userId) {
         document.getElementById('stat-total-tests').innerText = testsSnap.size;
         
         // Load User Results
-        const resultsRef = window.db.collection('results').where('userId', '==', userId).orderBy('timestamp', 'desc');
+        const resultsRef = window.db.collection('results').where('userId', '==', userId);
         const snapshot = await resultsRef.get();
         
-        const attempted = snapshot.size;
+        let allResults = [];
+        snapshot.forEach(doc => allResults.push(doc.data()));
+        
+        // Sort in memory to avoid composite index requirement
+        allResults.sort((a, b) => {
+            const timeA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+            const timeB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+            return timeB - timeA;
+        });
+        
+        const attempted = allResults.length;
         document.getElementById('stat-attempted').innerText = attempted;
         
         let totalMarks = 0;
@@ -38,8 +48,7 @@ async function loadStats(userId) {
         }
         
         let count = 0;
-        snapshot.forEach(doc => {
-            const data = doc.data();
+        allResults.forEach(data => {
             totalMarks += (data.marks || 0);
             if (data.rank && data.rank < bestRank) {
                 bestRank = data.rank;

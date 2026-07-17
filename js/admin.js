@@ -53,16 +53,24 @@ async function loadDashboardStats() {
 
 async function loadTests() {
     try {
-        const snapshot = await window.db.collection('tests').orderBy('createdAt', 'desc').get();
+        const snapshot = await window.db.collection('tests').get();
+        const tests = [];
+        snapshot.forEach(doc => tests.push({ id: doc.id, ...doc.data() }));
+        
+        tests.sort((a, b) => {
+            const timeA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+            const timeB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+            return timeB - timeA;
+        });
+        
         const tbody = document.getElementById('admin-tests-body');
         
-        if (snapshot.empty) {
+        if (tests.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" class="text-center">No tests found</td></tr>';
             return;
         }
         
         let html = '';
-        snapshot.forEach(doc => {
             const t = doc.data();
             html += `
                 <tr>

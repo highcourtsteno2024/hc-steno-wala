@@ -13,12 +13,19 @@ let userResults = [];
 
 async function loadResults(userId) {
     try {
-        const resultsRef = window.db.collection('results').where('userId', '==', userId).orderBy('timestamp', 'desc');
+        const resultsRef = window.db.collection('results').where('userId', '==', userId);
         const snapshot = await resultsRef.get();
         
         userResults = [];
         snapshot.forEach(doc => {
             userResults.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Sort in memory to avoid composite index requirement
+        userResults.sort((a, b) => {
+            const timeA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+            const timeB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+            return timeB - timeA;
         });
         
         renderResults();
