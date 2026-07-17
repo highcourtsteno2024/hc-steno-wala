@@ -255,32 +255,6 @@ function handleTextUpload(event) {
         showToast("Error reading text file", "error");
     };
     reader.readAsText(file);
-}
 
-async function handleAudioUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const statusEl = document.getElementById('audio-upload-status');
-    const urlInput = document.getElementById('test-audio-url');
-    
-    statusEl.innerHTML = '<span style="color:var(--warning)">Uploading audio... Please wait.</span>';
-    
-    try {
-        const storageRef = firebase.storage().ref();
-        const audioRef = storageRef.child(`audios/${Date.now()}_${file.name}`);
-        
-        const snapshot = await audioRef.put(file);
-        const downloadURL = await snapshot.ref.getDownloadURL();
-        
-        urlInput.value = downloadURL;
-        statusEl.innerHTML = '<span style="color:var(--success)">✅ Audio uploaded successfully!</span>';
-        showToast("Audio uploaded", "success");
-    } catch (error) {
-        console.error(error);
-        statusEl.innerHTML = '<span style="color:var(--error)">❌ Error uploading audio. Check Firebase Storage rules.</span>';
-        showToast("Upload failed", "error");
-    }
-}
 
 
