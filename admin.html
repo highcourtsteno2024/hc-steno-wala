@@ -162,9 +162,10 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Audio File Name (e.g. dictation1.mp3)</label>
-                        <input type="text" id="test-audio-url" class="form-control" placeholder="dictation1.mp3">
-                        <small class="text-secondary">Paste your MP3 file in the <b>audios</b> folder on your PC, type its name here, and commit via GitHub Desktop.</small>
+                        <label>Audio File (Direct Upload from PC / Any Device)</label>
+                        <input type="file" id="test-audio-file" class="form-control" accept="audio/*" onchange="handleAudioUpload(event)">
+                        <small class="text-secondary" id="audio-upload-status">Select an MP3/WAV/AAC file.</small>
+                        <input type="hidden" id="test-audio-url">
                     </div>
                     
                     <div class="form-group">

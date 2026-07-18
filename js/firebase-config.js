@@ -19,12 +19,12 @@ const firebaseConfig = {
 
   // authDomain: Firebase Authentication के लिए डोमेन।
   // फॉर्मेट: your-project-id.firebaseapp.com
-    apiKey: "AIzaSyA9HlYg9SNfxYGwiD2GjOM25Rz3OHhacZY",
-    authDomain: "hc-steno-wala-d4a15.firebaseapp.com",
-    projectId: "hc-steno-wala-d4a15",
-    storageBucket: "hc-steno-wala-d4a15.firebasestorage.app",
-    messagingSenderId: "195028129044",
-    appId: "1:195028129044:web:2b824c29f5ec0875cc9e01"
+    apiKey: "AIzaSyAOpsDhHZ95AEt6pqgJGBM5gmEuVED8m44",
+    authDomain: "hc-steno-app-2024.firebaseapp.com",
+    projectId: "hc-steno-app-2024",
+    storageBucket: "hc-steno-app-2024.firebasestorage.app",
+    messagingSenderId: "181698187067",
+    appId: "1:181698187067:web:2b7a0b66a8afd8d709311e"
 };
 
 // ── Firebase Initialize ───────────────────────────────────────────────

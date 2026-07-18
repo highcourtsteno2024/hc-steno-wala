@@ -289,7 +289,7 @@
             name: name,
             mobile: mobile,
             email: email,
-            role: 'student',
+            role: email.toLowerCase() === 'highcourtsteno2024@gmail.com' ? 'admin' : 'student',
             isPremium: false,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
