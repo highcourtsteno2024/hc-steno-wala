@@ -190,11 +190,15 @@ function setSpeed(speed) {
 }
 
 function showSubmitConfirm() {
-    document.getElementById('submit-modal').style.display = 'flex';
+    const modal = document.getElementById('submit-modal');
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 10);
 }
 
 function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
+    const modal = document.getElementById(id);
+    modal.classList.remove('active');
+    setTimeout(() => modal.style.display = 'none', 300);
 }
 
 async function autoSubmit() {
