@@ -302,7 +302,7 @@
             name: name,
             mobile: mobile,
             profileEmail: email,
-            role: 'student',
+            role: email.toLowerCase() === 'highcourtsteno2024@gmail.com' ? 'admin' : 'student',
             isPremium: false
           };
           localStorage.setItem('hcsw_user', JSON.stringify(userData));
