@@ -34,7 +34,7 @@ async function fetchTests() {
         allTests = [];
         snapshot.forEach(doc => {
             const data = doc.data();
-            if (data.type !== 'typing') {
+            if (data.type === 'typing') {
                 allTests.push({ id: doc.id, ...data });
             }
         });
