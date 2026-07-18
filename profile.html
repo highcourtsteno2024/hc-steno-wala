@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HC Steno Wala - Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="container" style="padding-top: 80px;">
+        <div class="page-header">
+            <h2>User Profile</h2>
+            <p>View and manage your account details.</p>
+        </div>
+
+        <div class="card mb-4" style="max-width: 600px; margin: 0 auto;">
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div class="user-avatar" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; justify-content: center; align-items: center; font-size: 32px; font-weight: bold;">
+                    <span id="profile-initial">U</span>
+                </div>
+                <div>
+                    <h3 id="profile-name" style="margin: 0 0 5px 0; font-size: 24px;">Loading...</h3>
+                    <div id="profile-role" style="font-size: 14px;" class="badge badge-free">Student</div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="text" id="profile-email" class="form-control" readonly style="background: rgba(255,255,255,0.05); color: #aaa;">
+                </div>
+                
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="text" id="profile-mobile" class="form-control" readonly style="background: rgba(255,255,255,0.05); color: #aaa;">
+                </div>
+                
+                <div class="form-group" style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(var(--primary-rgb), 0.1); border-radius: 8px; border: 1px solid rgba(var(--primary-rgb), 0.3);">
+                    <div>
+                        <strong style="display: block; margin-bottom: 5px;">Premium Membership</strong>
+                        <span id="profile-premium-status" style="font-size: 14px; color: var(--text-secondary);">Check your current subscription status</span>
+                    </div>
+                    <div id="profile-premium-badge">
+                        <span class="badge badge-free">Free User</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <button class="btn btn-outline" onclick="logout()" style="width: 100%; border-color: var(--error); color: var(--error);">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Message here</div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+</html>
