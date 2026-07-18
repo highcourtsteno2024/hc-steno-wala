@@ -81,36 +81,13 @@ function renderResults() {
                 <td class="${colorClass} font-bold">${marks}%</td>
                 <td>${res.rank || '-'}</td>
                 <td>
-                    <button class="btn btn-secondary btn-sm" onclick="showAnswerSheet('${res.id}')">📄 Show</button>
-                    <button class="btn btn-success btn-sm" onclick="compareText('${res.id}')">📊 Compare</button>
+                    <button class="btn btn-secondary btn-sm" onclick="compareText('${res.id}')">📄 Show</button>
+                    <button class="btn btn-success btn-sm" onclick="showRank('${res.id}')">🏆 Rank</button>
                 </td>
             </tr>
         `;
     });
     tbody.innerHTML = html;
-}
-
-async function showAnswerSheet(resultId) {
-    const result = userResults.find(r => r.id === resultId);
-    if (!result) return;
-    
-    showLoading();
-    try {
-        const testDoc = await window.db.collection('tests').doc(result.testId).get();
-        if (testDoc.exists) {
-            const testData = testDoc.data();
-            document.getElementById('original-text-display').innerText = testData.textContent || "Original text not available.";
-            document.getElementById('user-text-display').innerText = result.typedText || "You didn't type anything.";
-            document.getElementById('answer-modal').style.display = 'flex';
-        } else {
-            showToast("टेस्ट डेटा उपलब्ध नहीं है।", "warning");
-        }
-    } catch (error) {
-        console.error(error);
-        showToast("त्रुटि", "error");
-    } finally {
-        hideLoading();
-    }
 }
 
 async function compareText(resultId) {
@@ -142,13 +119,66 @@ async function compareText(resultId) {
             }
             
             document.getElementById('compare-display').innerHTML = compareHtml;
-            document.getElementById('compare-modal').style.display = 'flex';
+            const modal = document.getElementById('compare-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
         } else {
             showToast("टेस्ट डेटा उपलब्ध नहीं है।", "warning");
         }
     } catch (error) {
         console.error(error);
         showToast("त्रुटि", "error");
+    } finally {
+        hideLoading();
+    }
+}
+
+async function showRank(resultId) {
+    const result = userResults.find(r => r.id === resultId);
+    if (!result) return;
+    
+    showLoading();
+    try {
+        const snapshot = await window.db.collection('test_results')
+            .where('testId', '==', result.testId)
+            .get();
+            
+        let allResults = [];
+        snapshot.forEach(doc => allResults.push(doc.data()));
+        
+        if (allResults.length === 0) {
+            showToast("No rank data available yet.", "info");
+            return;
+        }
+        
+        // Sort by marks descending, then by words typed descending
+        allResults.sort((a, b) => {
+            if (b.marks !== a.marks) return b.marks - a.marks;
+            return b.totalTyped - a.totalTyped;
+        });
+        
+        let rank = -1;
+        for (let i = 0; i < allResults.length; i++) {
+            // Find the current user's entry (could have multiple attempts, so match exact marks/time roughly or just the highest)
+            // But since we are looking for THIS specific result, we can match user ID and marks
+            if (allResults[i].userId === result.userId && allResults[i].marks === result.marks) {
+                rank = i + 1;
+                break;
+            }
+        }
+        
+        if (rank === -1) rank = "N/A"; // Shouldn't happen
+        
+        document.getElementById('rank-display').innerText = `#${rank}`;
+        document.getElementById('rank-subtext').innerText = `Out of ${allResults.length} total attempts for this test.`;
+        
+        const modal = document.getElementById('rank-modal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+        
+    } catch (error) {
+        console.error("Error fetching rank:", error);
+        showToast("Error loading rank", "error");
     } finally {
         hideLoading();
     }

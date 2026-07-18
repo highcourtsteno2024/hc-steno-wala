@@ -148,10 +148,11 @@ function startTestEngine() {
     textarea.disabled = false;
     textarea.focus();
     
-    // Start Audio
+    // Stop Audio (dictation phase ends, typing phase begins)
     if (testData.audioUrl) {
         const audio = document.getElementById('test-audio');
-        audio.play().catch(e => console.log("Auto-play prevented", e));
+        audio.pause();
+        audio.currentTime = 0;
     }
     
     // Start Timer
