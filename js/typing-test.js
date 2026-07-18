@@ -50,25 +50,30 @@ async function loadTestData(id) {
         document.getElementById('test-total-words').innerText = testData.totalWords || '0';
         document.getElementById('test-duration').innerText = testData.typeDuration || 'N/A';
         
-        // Setup Audio if available
-        if (testData.audioUrl) {
-            document.getElementById('audio-container').style.display = 'block';
-            
-            let finalUrl = testData.audioUrl;
-            // Convert Google Drive view links to direct streaming links
-            if (finalUrl.includes('drive.google.com')) {
-                const match = finalUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || finalUrl.match(/id=([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) {
-                    finalUrl = `https://drive.google.com/uc?export=download&id=${match[1]}`;
-                }
-            }
-            
-            
-            const audioEl = document.getElementById('test-audio');
-            audioEl.src = finalUrl;
-            
+        if (testData.type === 'typing') {
+            document.getElementById('audio-container').style.display = 'none';
+            document.getElementById('typing-text-container').style.display = 'block';
+            document.getElementById('typing-text-container').innerText = testData.textContent || 'No text provided for this test.';
         } else {
-            document.getElementById('no-audio-msg').style.display = 'block';
+            document.getElementById('typing-text-container').style.display = 'none';
+            // Setup Audio if available for steno
+            if (testData.audioUrl) {
+                document.getElementById('audio-container').style.display = 'block';
+                
+                let finalUrl = testData.audioUrl;
+                // Convert Google Drive view links to direct streaming links
+                if (finalUrl.includes('drive.google.com')) {
+                    const match = finalUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || finalUrl.match(/id=([a-zA-Z0-9_-]+)/);
+                    if (match && match[1]) {
+                        finalUrl = `https://drive.google.com/uc?export=download&id=${match[1]}`;
+                    }
+                }
+                
+                const audioEl = document.getElementById('test-audio');
+                audioEl.src = finalUrl;
+            } else {
+                document.getElementById('no-audio-msg') && (document.getElementById('no-audio-msg').style.display = 'block');
+            }
         }
         
         // Parse time (assuming format like "45Mins" or "45")
@@ -207,6 +212,77 @@ async function autoSubmit() {
     await submitTest();
 }
 
+function evaluateTest(originalWords, typedWords) {
+    const n = originalWords.length;
+    const m = typedWords.length;
+    const getCore = w => w.replace(/[.,?!;:'"\|\u0964\u0965\-]/g, '');
+    
+    const dp = Array.from(Array(n + 1), () => Array(m + 1));
+    dp[0][0] = { f: 0, h: 0, op: null, prevI: 0, prevJ: 0 };
+    
+    for (let i = 1; i <= n; i++) dp[i][0] = { f: i, h: 0, op: 'del', prevI: i-1, prevJ: 0 };
+    for (let j = 1; j <= m; j++) dp[0][j] = { f: j, h: 0, op: 'ins', prevI: 0, prevJ: j-1 };
+    
+    for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= m; j++) {
+            const o = originalWords[i-1];
+            const t = typedWords[j-1];
+            
+            let costF = 0, costH = 0, op = 'sub';
+            if (o === t) { costF = 0; costH = 0; op = 'match'; }
+            else if (getCore(o) === getCore(t)) { costF = 0; costH = 1; op = 'half'; }
+            else { costF = 1; costH = 0; op = 'sub'; }
+            
+            const sub = { f: dp[i-1][j-1].f + costF, h: dp[i-1][j-1].h + costH, op: op, prevI: i-1, prevJ: j-1 };
+            const del = { f: dp[i-1][j].f + 1, h: dp[i-1][j].h, op: 'del', prevI: i-1, prevJ: j };
+            const ins = { f: dp[i][j-1].f + 1, h: dp[i][j-1].h, op: 'ins', prevI: i, prevJ: j-1 };
+            
+            const weight = (s) => s.f + 0.5 * s.h;
+            let minState = sub;
+            if (weight(del) < weight(minState)) minState = del;
+            if (weight(ins) < weight(minState)) minState = ins;
+            dp[i][j] = minState;
+        }
+    }
+    
+    const ops = [];
+    let currI = n, currJ = m;
+    while (currI > 0 || currJ > 0) {
+        const state = dp[currI][currJ];
+        ops.push(state.op);
+        currI = state.prevI;
+        currJ = state.prevJ;
+    }
+    ops.reverse();
+    
+    let html = '';
+    let i = 0, j = 0;
+    for (const op of ops) {
+        if (op === 'match') {
+            html += `<span style="color: var(--success);">${escapeHtml(typedWords[j])}</span> `;
+            i++; j++;
+        } else if (op === 'half') {
+            html += `<span style="color: var(--warning);" title="Correct: ${escapeHtml(originalWords[i])}">${escapeHtml(typedWords[j])}</span> `;
+            i++; j++;
+        } else if (op === 'sub') {
+            html += `<span style="color: var(--error);" title="Correct: ${escapeHtml(originalWords[i])}">${escapeHtml(typedWords[j])}</span> `;
+            i++; j++;
+        } else if (op === 'del') {
+            html += `<span style="color: var(--error); text-decoration: line-through;" title="Omitted">${escapeHtml(originalWords[i])}</span> `;
+            i++;
+        } else if (op === 'ins') {
+            html += `<span style="color: var(--error);" title="Extra word">${escapeHtml(typedWords[j])}</span> `;
+            j++;
+        }
+    }
+    
+    return {
+        fullMistakes: dp[n][m].f,
+        halfMistakes: dp[n][m].h,
+        html: html
+    };
+}
+
 async function submitTest() {
     if (timerInterval) clearInterval(timerInterval);
     isTestRunning = false;
@@ -223,31 +299,28 @@ async function submitTest() {
         const totalTyped = typedWordsArr.length;
         const totalOriginal = originalWordsArr.length;
         
-        // Simple comparison logic
-        let correct = 0;
-        let incorrect = 0;
+        // Use High Court Evaluation Algorithm
+        const evaluation = evaluateTest(originalWordsArr, typedWordsArr);
+        const fullMistakes = evaluation.fullMistakes;
+        const halfMistakes = evaluation.halfMistakes;
         
-        for (let i = 0; i < Math.max(totalTyped, totalOriginal); i++) {
-            if (i < totalTyped && i < totalOriginal) {
-                if (typedWordsArr[i] === originalWordsArr[i]) {
-                    correct++;
-                } else {
-                    incorrect++;
-                }
-            } else if (i < totalTyped) {
-                incorrect++; // extra typed words
-            }
-            // missing words are accounted for in totalOriginal vs correct
-        }
+        // 2 half mistakes = 1 full mistake
+        const actualCommitted = fullMistakes + (halfMistakes / 2);
+        const permissible = totalOriginal * 0.05; // 5% allowance
         
-        const missing = Math.max(0, totalOriginal - totalTyped);
-        incorrect += missing; // consider missing words as incorrect for scoring
+        let actualCorrect = totalOriginal - actualCommitted;
+        if (actualCorrect < 0) actualCorrect = 0;
         
-        // Marks logic: simplistic representation (correct/totalOriginal * 100)
+        // Calculate Marks (out of 100)
         let marks = 0;
         if (totalOriginal > 0) {
-            marks = (correct / totalOriginal) * 100;
+            marks = (actualCorrect * 100) / totalOriginal;
         }
+        
+        // Calculate Speed (WPM)
+        const durationInMinutes = totalTime > 0 ? (totalTime / 60) : 1;
+        const minMistakes = Math.min(permissible, actualCommitted);
+        const speedWPM = (actualCorrect + minMistakes) / durationInMinutes;
         
         const resultData = {
             userId: user.uid,
@@ -255,8 +328,13 @@ async function submitTest() {
             testName: testData.name,
             totalWords: totalOriginal || testData.totalWords,
             totalTyped: totalTyped,
-            incorrect: incorrect,
-            marks: marks,
+            fullMistakes: fullMistakes,
+            halfMistakes: halfMistakes,
+            actualCommitted: actualCommitted,
+            incorrect: actualCommitted, // keep for backward compatibility
+            marks: parseFloat(marks.toFixed(2)),
+            speedWPM: Math.round(speedWPM),
+            compareHtml: evaluation.html,
             typedText: typedText,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };

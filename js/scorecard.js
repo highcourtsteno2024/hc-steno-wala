@@ -76,8 +76,9 @@ function renderResults() {
                 <td>${dateStr}</td>
                 <td>${escapeHtml(res.testName || 'Unknown')}</td>
                 <td>${res.totalWords || 0}</td>
-                <td>${res.totalTyped || 0}</td>
-                <td>${res.incorrect || 0}</td>
+                <td>${res.fullMistakes !== undefined ? res.fullMistakes : res.incorrect || 0}</td>
+                <td>${res.halfMistakes || 0}</td>
+                <td>${res.speedWPM || 0} WPM</td>
                 <td class="${colorClass} font-bold">${marks}%</td>
                 <td>${res.rank || '-'}</td>
                 <td>

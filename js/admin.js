@@ -146,6 +146,20 @@ function openTestModal() {
     const modal = document.getElementById('test-modal');
     modal.style.display = 'flex';
     setTimeout(() => modal.classList.add('active'), 10);
+    toggleAudioUrlField();
+}
+
+function toggleAudioUrlField() {
+    const type = document.getElementById('test-type').value;
+    const audioGroup = document.getElementById('audio-url-group');
+    const audioInput = document.getElementById('test-audio-url');
+    if (type === 'typing') {
+        audioGroup.style.display = 'none';
+        audioInput.removeAttribute('required');
+    } else {
+        audioGroup.style.display = 'block';
+        audioInput.setAttribute('required', 'true');
+    }
 }
 
 function closeModal(id) {
@@ -164,6 +178,7 @@ async function saveTest(e) {
     const id = document.getElementById('test-id').value;
     const testData = {
         name: document.getElementById('test-name').value,
+        type: document.getElementById('test-type').value || 'steno',
         language: document.getElementById('test-language').value,
         speed: document.getElementById('test-speed').value,
         totalWords: parseInt(document.getElementById('test-words').value) || 0,
@@ -175,6 +190,10 @@ async function saveTest(e) {
         isPremium: document.getElementById('test-premium').checked,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
+    
+    if (testData.type === 'typing') {
+        testData.audioUrl = ''; // No audio for typing test
+    }
     
     try {
         if (id) {
@@ -205,6 +224,7 @@ async function editTest(id) {
             const data = doc.data();
             document.getElementById('test-id').value = id;
             document.getElementById('test-name').value = data.name || '';
+            document.getElementById('test-type').value = data.type || 'steno';
             document.getElementById('test-language').value = data.language || 'Hindi';
             document.getElementById('test-speed').value = data.speed || '60WPM';
             document.getElementById('test-words').value = data.totalWords || '';
@@ -219,6 +239,7 @@ async function editTest(id) {
             const modal = document.getElementById('test-modal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
+            toggleAudioUrlField();
         }
     } catch (error) {
         console.error(error);
