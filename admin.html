@@ -162,10 +162,9 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Audio File (Direct Upload from PC / Any Device)</label>
-                        <input type="file" id="test-audio-file" class="form-control" accept="audio/*" onchange="handleAudioUpload(event)">
-                        <small class="text-secondary" id="audio-upload-status">Select an MP3/WAV/AAC file.</small>
-                        <input type="hidden" id="test-audio-url">
+                        <label>Audio URL (Dropbox / GitHub / Drive Link)</label>
+                        <input type="text" id="test-audio-url" class="form-control" placeholder="https://... या फाइल का नाम">
+                        <small class="text-secondary">Dropbox का लिंक डालें (अंत में dl=0 को raw=1 कर दें) या GitHub का लिंक डालें।</small>
                     </div>
                     
                     <div class="form-group">
