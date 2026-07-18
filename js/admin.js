@@ -255,4 +255,4 @@ function handleTextUpload(event) {
         showToast("Error reading text file", "error");
     };
     reader.readAsText(file);
-
+}
