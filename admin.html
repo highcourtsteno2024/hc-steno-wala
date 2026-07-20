@@ -189,6 +189,31 @@
                         <input type="checkbox" id="test-premium" style="width: 20px; height: 20px;">
                         <label style="margin: 0;">Is Premium Test?</label>
                     </div>
+
+                    <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
+                    <h4 style="margin-bottom: 15px; color: var(--accent);">Strict Rules / Exam Mode</h4>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Backspace Mode</label>
+                            <select id="test-backspace" class="form-control">
+                                <option value="full">Full Backspace Allowed</option>
+                                <option value="word">Current Word Only</option>
+                                <option value="disabled">Completely Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="test-highlight" style="width: 20px; height: 20px;" checked>
+                            <label style="margin: 0;">Allow Highlighter</label>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="test-navigation" style="width: 20px; height: 20px;">
+                            <label style="margin: 0;">Disable Navigation (Mouse/Arrows)</label>
+                        </div>
+                    </div>
                     
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Save Test</button>
                 </form>

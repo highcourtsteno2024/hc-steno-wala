@@ -5,6 +5,8 @@ let totalTime = 0;
 let isTestRunning = false;
 let testStartTime = null;
 let savedTypedText = '';
+let currentWordIndex = 0;
+let originalTextTokens = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('main-navbar').innerHTML = createNavbar('typing');
@@ -32,7 +34,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 30000);
     
     // Input event for live wpm/word count
-    document.getElementById('typing-textarea').addEventListener('input', updateStats);
+    document.getElementById('typing-textarea').addEventListener('input', () => {
+        updateStats();
+        updateHighlight();
+    });
+    
+    // Keydown event for Backspace and Navigation restrictions
+    document.getElementById('typing-textarea').addEventListener('keydown', handleKeydown);
+    
+    // Mousedown event for Navigation restrictions
+    document.getElementById('typing-textarea').addEventListener('mousedown', handleMousedown);
 });
 
 async function loadTestData(id) {
@@ -51,9 +62,39 @@ async function loadTestData(id) {
         document.getElementById('test-duration').innerText = testData.typeDuration || 'N/A';
         
         if (testData.type === 'typing') {
+            document.getElementById('left-panel-card').style.display = 'none';
+            document.getElementById('stats-grid').style.gridTemplateColumns = '1fr';
             document.getElementById('audio-container').style.display = 'none';
-            document.getElementById('typing-text-container').style.display = 'block';
-            document.getElementById('typing-text-container').innerText = testData.textContent || 'No text provided for this test.';
+            
+            const textContainer = document.getElementById('typing-text-container');
+            textContainer.style.display = 'block';
+            
+            if (testData.language !== 'English') {
+                textContainer.classList.add('krutidev-text');
+            } else {
+                textContainer.classList.remove('krutidev-text');
+            }
+            
+            document.getElementById('typing-settings').style.display = 'flex';
+            
+            if (testData.backspaceMode) {
+                const bsSelect = document.getElementById('setting-backspace');
+                bsSelect.value = testData.backspaceMode;
+                if (testData.backspaceMode === 'disabled') bsSelect.disabled = true;
+            }
+            
+            if (testData.allowHighlight === false) {
+                const hlSelect = document.getElementById('setting-highlight');
+                hlSelect.value = 'none';
+                hlSelect.disabled = true;
+            }
+            
+            originalTextTokens = (testData.textContent || "").split(/\s+/).filter(w => w.length > 0);
+            let html = '';
+            originalTextTokens.forEach((word, index) => {
+                html += `<span id="word-${index}">${escapeHtml(word)}</span> `;
+            });
+            textContainer.innerHTML = html;
         } else {
             document.getElementById('typing-text-container').style.display = 'none';
             // Setup Audio if available for steno
@@ -187,6 +228,109 @@ function updateStats() {
     if (timeElapsedSec > 0) {
         const wpm = Math.round((typedWordsCount / timeElapsedSec) * 60);
         document.getElementById('live-wpm').innerText = wpm;
+    }
+}
+
+function updateHighlight() {
+    if (testData.type !== 'typing') return;
+    
+    const hlMode = document.getElementById('setting-highlight').value;
+    const textContainer = document.getElementById('typing-text-container');
+    
+    // Clear all highlights
+    for (let i = 0; i < originalTextTokens.length; i++) {
+        const el = document.getElementById(`word-${i}`);
+        if (el) {
+            el.style.backgroundColor = 'transparent';
+            el.style.color = 'inherit';
+        }
+    }
+    
+    const text = document.getElementById('typing-textarea').value;
+    
+    // Calculate current word index
+    // We count spaces. If string ends with space, they are on the NEXT word.
+    const typedTokens = text.split(/\s+/);
+    let newWordIndex = typedTokens.length - 1;
+    if (text.endsWith(' ') || text.endsWith('\n')) {
+        newWordIndex = typedTokens.length;
+        if (typedTokens[typedTokens.length-1] === "") {
+             newWordIndex = typedTokens.length - 1; 
+        }
+    }
+    currentWordIndex = newWordIndex;
+    
+    if (hlMode !== 'none' && currentWordIndex < originalTextTokens.length) {
+        const targetEl = document.getElementById(`word-${currentWordIndex}`);
+        if (targetEl) {
+            if (hlMode === 'yellow') {
+                targetEl.style.backgroundColor = 'rgba(255, 235, 59, 0.5)';
+                targetEl.style.color = '#fff';
+            } else if (hlMode === 'red') {
+                targetEl.style.backgroundColor = 'rgba(244, 67, 54, 0.5)';
+                targetEl.style.color = '#fff';
+            } else if (hlMode === 'black') {
+                targetEl.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                targetEl.style.color = '#fff';
+            }
+            
+            // Auto scroll
+            const containerHeight = textContainer.clientHeight;
+            const scrollPos = textContainer.scrollTop;
+            const elTop = targetEl.offsetTop - textContainer.offsetTop;
+            if (elTop < scrollPos || elTop > scrollPos + containerHeight - 40) {
+                textContainer.scrollTop = elTop - 40;
+            }
+        }
+    }
+}
+
+function handleKeydown(e) {
+    if (!isTestRunning) return;
+    
+    // Navigation Blocking
+    if (testData.disableNavigation) {
+        const navKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'];
+        if (navKeys.includes(e.key)) {
+            e.preventDefault();
+            return;
+        }
+    }
+    
+    // Backspace Blocking
+    if (e.key === 'Backspace') {
+        const bsMode = document.getElementById('setting-backspace').value;
+        const textarea = e.target;
+        
+        if (bsMode === 'disabled') {
+            e.preventDefault();
+            return;
+        }
+        
+        if (bsMode === 'word') {
+            // Cannot delete space or newline if we are just after it (meaning we jump to previous word)
+            const cursor = textarea.selectionStart;
+            if (cursor > 0) {
+                const charBefore = textarea.value.charAt(cursor - 1);
+                if (charBefore === ' ' || charBefore === '\n') {
+                    e.preventDefault();
+                    return;
+                }
+            }
+        }
+    }
+}
+
+function handleMousedown(e) {
+    if (!isTestRunning) return;
+    
+    if (testData.disableNavigation) {
+        e.preventDefault();
+        // Force cursor to end
+        const textarea = e.target;
+        textarea.focus();
+        textarea.selectionStart = textarea.value.length;
+        textarea.selectionEnd = textarea.value.length;
     }
 }
 
@@ -345,16 +489,28 @@ async function submitTest() {
         // Clear draft
         localStorage.removeItem(`hcsw_draft_${testData.id}`);
         
-        showToast("टेस्ट सफलतापूर्वक सबमिट हो गया है!", "success");
-        setTimeout(() => {
-            window.location.href = 'scorecard.html';
-        }, 1500);
+        // Instead of immediate redirect, show the result modal
+        document.getElementById('res-gross-speed').innerText = Math.round(totalTyped / durationInMinutes) + ' WPM';
+        document.getElementById('res-net-speed').innerText = Math.round(speedWPM) + ' WPM';
+        document.getElementById('res-total-typed').innerText = totalTyped;
+        document.getElementById('res-right-words').innerText = actualCorrect;
+        document.getElementById('res-full-mistakes').innerText = fullMistakes;
+        document.getElementById('res-half-mistakes').innerText = halfMistakes;
+        
+        hideLoading();
+        const modal = document.getElementById('result-modal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
         
     } catch (error) {
         console.error(error);
         showToast("Error submitting test", "error");
         hideLoading();
     }
+}
+
+function goToScorecard() {
+    window.location.href = 'scorecard.html';
 }
 
 // Warn before leaving

@@ -143,6 +143,7 @@ function openTestModal() {
     document.getElementById('test-form').reset();
     document.getElementById('test-id').value = '';
     document.getElementById('test-modal-title').innerText = 'Add New Test';
+    document.getElementById('test-highlight').checked = true;
     const modal = document.getElementById('test-modal');
     modal.style.display = 'flex';
     setTimeout(() => modal.classList.add('active'), 10);
@@ -188,6 +189,9 @@ async function saveTest(e) {
         audioUrl: document.getElementById('test-audio-url').value,
         textContent: document.getElementById('test-text').value,
         isPremium: document.getElementById('test-premium').checked,
+        backspaceMode: document.getElementById('test-backspace').value || 'full',
+        allowHighlight: document.getElementById('test-highlight').checked,
+        disableNavigation: document.getElementById('test-navigation').checked,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
@@ -233,7 +237,10 @@ async function editTest(id) {
             document.getElementById('test-type-dur').value = data.typeDuration || '';
             document.getElementById('test-audio-url').value = data.audioUrl || '';
             document.getElementById('test-text').value = data.textContent || '';
-            document.getElementById('test-premium').checked = !!data.isPremium;
+            document.getElementById('test-premium').checked = data.isPremium || false;
+            document.getElementById('test-backspace').value = data.backspaceMode || 'full';
+            document.getElementById('test-highlight').checked = data.allowHighlight !== false; // default true
+            document.getElementById('test-navigation').checked = data.disableNavigation || false;
             
             document.getElementById('test-modal-title').innerText = 'Edit Test';
             const modal = document.getElementById('test-modal');
