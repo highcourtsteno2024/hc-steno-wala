@@ -56,8 +56,9 @@ async function loadTestData(id) {
         }
         
     } catch (error) {
-        console.error(error);
-        showToast("Error loading test data", "error");
+        console.error("Load test data error details:", error);
+        showToast("Error: " + error.message, "error");
+        document.getElementById('test-title').innerText = "Error: " + error.message;
     } finally {
         hideLoading();
     }
