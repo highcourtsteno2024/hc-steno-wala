@@ -100,26 +100,41 @@ async function compareText(resultId) {
         const testDoc = await window.db.collection('tests').doc(result.testId).get();
         if (testDoc.exists) {
             const testData = testDoc.data();
-            const originalWords = (testData.textContent || "").split(/\s+/).filter(w => w.trim() !== '');
-            const typedWords = (result.typedText || "").split(/\s+/).filter(w => w.trim() !== '');
             
-            let compareHtml = '';
-            for (let i = 0; i < Math.max(originalWords.length, typedWords.length); i++) {
-                const orig = originalWords[i] || '';
-                const typed = typedWords[i] || '';
-                
-                if (orig === typed) {
-                    compareHtml += `<span style="color: var(--success);">${escapeHtml(typed)}</span> `;
-                } else if (!typed) {
-                    compareHtml += `<span style="color: var(--warning); text-decoration: line-through;">${escapeHtml(orig)}</span> `;
-                } else if (!orig) {
-                    compareHtml += `<span style="color: var(--error);">${escapeHtml(typed)}</span> `;
-                } else {
-                    compareHtml += `<span style="color: var(--error);" title="Correct: ${escapeHtml(orig)}">${escapeHtml(typed)}</span> `;
-                }
+            // Set Kruti Dev font if language is not English (assuming Hindi tests use Kruti Dev)
+            const compareDisplay = document.getElementById('compare-display');
+            if (testData.language !== 'English') {
+                compareDisplay.classList.add('krutidev-text');
+            } else {
+                compareDisplay.classList.remove('krutidev-text');
             }
             
-            document.getElementById('compare-display').innerHTML = compareHtml;
+            // Use precomputed HTML from High Court evaluation engine if available
+            if (result.compareHtml) {
+                compareDisplay.innerHTML = result.compareHtml;
+            } else {
+                // Fallback for older tests
+                const originalWords = (testData.textContent || "").split(/\s+/).filter(w => w.trim() !== '');
+                const typedWords = (result.typedText || "").split(/\s+/).filter(w => w.trim() !== '');
+                
+                let compareHtml = '';
+                for (let i = 0; i < Math.max(originalWords.length, typedWords.length); i++) {
+                    const orig = originalWords[i] || '';
+                    const typed = typedWords[i] || '';
+                    
+                    if (orig === typed) {
+                        compareHtml += `<span style="color: var(--success);">${escapeHtml(typed)}</span> `;
+                    } else if (!typed) {
+                        compareHtml += `<span style="color: var(--warning); text-decoration: line-through;">${escapeHtml(orig)}</span> `;
+                    } else if (!orig) {
+                        compareHtml += `<span style="color: var(--error);">${escapeHtml(typed)}</span> `;
+                    } else {
+                        compareHtml += `<span style="color: var(--error);" title="Correct: ${escapeHtml(orig)}">${escapeHtml(typed)}</span> `;
+                    }
+                }
+                compareDisplay.innerHTML = compareHtml;
+            }
+            
             const modal = document.getElementById('compare-modal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);

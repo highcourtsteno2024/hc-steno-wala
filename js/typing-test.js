@@ -336,6 +336,7 @@ async function submitTest() {
             speedWPM: Math.round(speedWPM),
             compareHtml: evaluation.html,
             typedText: typedText,
+            language: testData.language || 'Hindi',
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
         
