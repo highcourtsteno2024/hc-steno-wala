@@ -154,12 +154,29 @@ function toggleAudioUrlField() {
     const type = document.getElementById('test-type').value;
     const audioGroup = document.getElementById('audio-url-group');
     const audioInput = document.getElementById('test-audio-url');
+    const speedGroup = document.getElementById('speed-group');
+    const speedInput = document.getElementById('test-speed');
+    const audioDurGroup = document.getElementById('audio-dur-group');
+    const audioDurInput = document.getElementById('test-audio-dur');
+    
     if (type === 'typing') {
         audioGroup.style.display = 'none';
         audioInput.removeAttribute('required');
+        
+        if(speedGroup) speedGroup.style.display = 'none';
+        if(speedInput) speedInput.removeAttribute('required');
+        
+        if(audioDurGroup) audioDurGroup.style.display = 'none';
+        if(audioDurInput) audioDurInput.removeAttribute('required');
     } else {
         audioGroup.style.display = 'block';
         audioInput.setAttribute('required', 'true');
+        
+        if(speedGroup) speedGroup.style.display = 'flex';
+        if(speedInput) speedInput.setAttribute('required', 'true');
+        
+        if(audioDurGroup) audioDurGroup.style.display = 'block';
+        if(audioDurInput) audioDurInput.setAttribute('required', 'true');
     }
 }
 
