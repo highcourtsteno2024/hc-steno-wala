@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HC Steno Wala - Word Efficiency Tests</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <nav id="main-navbar"></nav>
+
+    <div class="container" style="padding-top: 80px;">
+        <div class="page-header">
+            <h2>Word Efficiency Tests</h2>
+            <p>Select a Word Efficiency test below to begin your practice.</p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="filter-bar">
+                <div class="form-group" style="margin: 0;">
+                    <select class="form-control" id="filter-exam" onchange="filterTests()">
+                        <option value="All">Select Exam: All Exams</option>
+                        <option value="Rajasthan High Court">Rajasthan High Court</option>
+                        <option value="SSC Steno">SSC Steno</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin: 0;">
+                    <select class="form-control" id="filter-speed" onchange="filterTests()">
+                        <option value="All">Select Speed: All</option>
+                        <option value="60WPM">60 WPM</option>
+                        <option value="70WPM">70 WPM</option>
+                        <option value="75WPM">75 WPM</option>
+                        <option value="80WPM">80 WPM</option>
+                        <option value="100WPM">100 WPM</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin: 0; flex-grow: 1;">
+                    <input type="text" class="form-control" id="search-test" placeholder="Search by Test Name..." oninput="debounceFilter()">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>दिनांक</th>
+                            <th>भाषा</th>
+                            <th>टेस्ट का नाम</th>
+                            <th>डिक्टेशन स्पीड</th>
+                            <th>कुल शब्द</th>
+                            <th>ऑडियो अवधि</th>
+                            <th>टाइप अवधि</th>
+                            <th>स्थिति</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tests-table-body">
+                        <tr><td colspan="9" class="text-center">Loading tests...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div style="display: flex; justify-content: center; margin-top: 20px; gap: 10px;">
+                <button class="btn btn-outline" id="btn-prev" onclick="changePage(-1)" disabled>&laquo; Prev</button>
+                <span style="display: flex; align-items: center;" id="page-info">Page 1</span>
+                <button class="btn btn-outline" id="btn-next" onclick="changePage(1)" disabled>Next &raquo;</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/word-tests.js"></script>
+</body>
+</html>

@@ -125,6 +125,7 @@
                             <select id="test-type" class="form-control" required onchange="toggleAudioUrlField()">
                                 <option value="steno">Steno Dictation</option>
                                 <option value="typing">Typing Test</option>
+                                <option value="word">Word Efficiency Test</option>
                             </select>
                         </div>
                         <div class="form-group" style="flex: 1;">
@@ -177,15 +178,24 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Original Text Content (Required for comparison)</label>
-                        <div style="display: flex; gap: 10px; margin-bottom: 5px;">
-                            <input type="file" id="test-text-file" class="form-control" accept=".txt" onchange="handleTextUpload(event)" style="flex: 1; padding: 5px;">
-                            <small style="align-self: center;" class="text-secondary">Upload .txt file to auto-fill</small>
+                        <label>Original Text Content (Required for comparison or Word document base)</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="file" id="test-file" accept=".txt" class="form-control" style="flex: 1; padding: 5px;" onchange="handleFileUpload(event)">
+                            <small class="text-secondary" style="align-self: center;">Upload .txt file to auto-fill</small>
                         </div>
-                        <textarea id="test-text" class="form-control" rows="6" placeholder="Or type/paste text here..." required></textarea>
+                        <textarea id="test-text" class="form-control" rows="8" placeholder="Or type/paste text here..."></textarea>
                     </div>
                     
-                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Word Efficiency Questions -->
+                    <div id="word-questions-group" style="display: none; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
+                        <h4 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; color: var(--accent);">Word Efficiency Questions</h4>
+                        <div id="questions-container" style="display: flex; flex-direction: column; gap: 15px;">
+                            <!-- Questions will be dynamically added here -->
+                        </div>
+                        <button type="button" class="btn btn-outline btn-sm mt-2" onclick="addQuestionField()">+ Add Question</button>
+                    </div>
+                    
+                    <div class="form-group checkbox-group" style="display: flex; align-items: center; gap: 10px;">
                         <input type="checkbox" id="test-premium" style="width: 20px; height: 20px;">
                         <label style="margin: 0;">Is Premium Test?</label>
                     </div>

@@ -70,20 +70,37 @@ function renderResults() {
         const marks = res.marks ? res.marks.toFixed(2) : '0.00';
         const colorClass = res.marks >= 80 ? 'text-success' : (res.marks < 50 ? 'text-error' : '');
         
-        html += `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${dateStr}</td>
-                <td>${escapeHtml(res.testName || 'Unknown')}</td>
+        let rowDetails = '';
+        if (res.type === 'word') {
+            rowDetails = `
+                <td>${res.totalQuestions || 0} Qs</td>
+                <td>${(res.totalQuestions || 0) - (res.correctAnswers || 0)} (Wrong)</td>
+                <td>-</td>
+                <td>-</td>
+            `;
+        } else {
+            rowDetails = `
                 <td>${res.totalWords || 0}</td>
                 <td>${res.fullMistakes !== undefined ? res.fullMistakes : res.incorrect || 0}</td>
                 <td>${res.halfMistakes || 0}</td>
                 <td>${res.speedWPM || 0} WPM</td>
+            `;
+        }
+        
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${dateStr}</td>
+                <td>${escapeHtml(res.testName || 'Unknown')} <span style="font-size:10px; color:var(--accent);">(${res.type === 'word' ? 'Word' : 'Steno/Typing'})</span></td>
+                ${rowDetails}
                 <td class="${colorClass} font-bold">${marks}%</td>
                 <td>${res.rank || '-'}</td>
                 <td>
-                    <button class="btn btn-secondary btn-sm" onclick="compareText('${res.id}')">📄 Show</button>
-                    <button class="btn btn-success btn-sm" onclick="showRank('${res.id}')">🏆 Rank</button>
+                    ${res.type === 'word' 
+                        ? `<button class="btn btn-outline btn-sm" onclick="compareText('${res.id}')">📄 View Result</button>`
+                        : `<button class="btn btn-secondary btn-sm" onclick="compareText('${res.id}')">📄 Show</button>
+                           <button class="btn btn-success btn-sm" onclick="showRank('${res.id}')">🏆 Rank</button>`
+                    }
                 </td>
             </tr>
         `;
@@ -100,50 +117,49 @@ async function compareText(resultId) {
         const testDoc = await window.db.collection('tests').doc(result.testId).get();
         if (testDoc.exists) {
             const testData = testDoc.data();
-            
-            // Set Kruti Dev font if language is not English (assuming Hindi tests use Kruti Dev)
             const compareDisplay = document.getElementById('compare-display');
-            if (testData.language !== 'English') {
-                compareDisplay.classList.add('krutidev-text');
-            } else {
-                compareDisplay.classList.remove('krutidev-text');
-            }
             
-            // Use precomputed HTML from High Court evaluation engine if available
-            if (result.compareHtml) {
-                compareDisplay.innerHTML = result.compareHtml;
-            } else {
-                // Fallback for older tests
-                const originalWords = (testData.textContent || "").split(/\s+/).filter(w => w.trim() !== '');
-                const typedWords = (result.typedText || "").split(/\s+/).filter(w => w.trim() !== '');
-                
-                let compareHtml = '';
-                for (let i = 0; i < Math.max(originalWords.length, typedWords.length); i++) {
-                    const orig = originalWords[i] || '';
-                    const typed = typedWords[i] || '';
-                    
-                    if (orig === typed) {
-                        compareHtml += `<span style="color: var(--success);">${escapeHtml(typed)}</span> `;
-                    } else if (!typed) {
-                        compareHtml += `<span style="color: var(--warning); text-decoration: line-through;">${escapeHtml(orig)}</span> `;
-                    } else if (!orig) {
-                        compareHtml += `<span style="color: var(--error);">${escapeHtml(typed)}</span> `;
-                    } else {
-                        compareHtml += `<span style="color: var(--error);" title="Correct: ${escapeHtml(orig)}">${escapeHtml(typed)}</span> `;
-                    }
+            if (result.type === 'word') {
+                compareDisplay.classList.remove('krutidev-text');
+                let detailsHtml = '<h4 style="margin-bottom: 15px; font-family: Arial;">Word Efficiency Evaluation:</h4><ul style="text-align: left; list-style: none; padding: 0; font-family: Arial;">';
+                if (result.evaluationDetails && result.evaluationDetails.length > 0) {
+                    result.evaluationDetails.forEach(q => {
+                        const color = q.correct ? 'var(--success)' : 'var(--error)';
+                        const icon = q.correct ? '✅' : '❌';
+                        detailsHtml += `<li style="margin-bottom: 12px; font-size: 16px;"><span style="color: ${color}; font-weight: bold;">${icon}</span> ${escapeHtml(q.question)}</li>`;
+                    });
+                } else {
+                    detailsHtml += '<li>No details available (Auto scored 100%)</li>';
                 }
-                compareDisplay.innerHTML = compareHtml;
+                detailsHtml += '</ul>';
+                
+                detailsHtml += '<h4 style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">Your Final Document:</h4>';
+                detailsHtml += `<div style="background: white; color: black; padding: 20px; border: 1px solid #ccc; font-family: ${testData && testData.language !== 'English' ? "'Kruti Dev 010', Arial" : "Arial"}; text-align: left;">${result.finalHtml || ''}</div>`;
+                
+                compareDisplay.innerHTML = detailsHtml;
+            } else {
+                if (testData.language !== 'English') {
+                    compareDisplay.classList.add('krutidev-text');
+                } else {
+                    compareDisplay.classList.remove('krutidev-text');
+                }
+                
+                if (result.compareHtml) {
+                    compareDisplay.innerHTML = result.compareHtml;
+                } else {
+                    compareDisplay.innerHTML = '<div class="text-center text-secondary">No detailed comparison available for this test.</div>';
+                }
             }
             
             const modal = document.getElementById('compare-modal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
         } else {
-            showToast("टेस्ट डेटा उपलब्ध नहीं है।", "warning");
+            showToast("Test not found", "warning");
         }
     } catch (error) {
         console.error(error);
-        showToast("त्रुटि", "error");
+        showToast("Error", "error");
     } finally {
         hideLoading();
     }

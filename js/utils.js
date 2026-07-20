@@ -275,6 +275,7 @@ function createNavbar(activePage) {
   const navLinks = [
     { id: 'home',      href: 'dashboard.html',    icon: '🏠', label: 'Home' },
     { id: 'typing',    href: 'typing-tests.html',  icon: '⌨️', label: 'Typing Test' },
+    { id: 'word',      href: 'word-tests.html',    icon: '📝', label: 'Word Efficiency' },
     { id: 'steno',     href: 'steno-tests.html',  icon: '🎧', label: 'Steno Tests' },
     { id: 'scorecard', href: 'scorecard.html',     icon: '📊', label: 'Scorecard' },
     { id: 'contact',   href: 'contact.html',       icon: '📞', label: 'Contact' }

@@ -144,6 +144,7 @@ function openTestModal() {
     document.getElementById('test-id').value = '';
     document.getElementById('test-modal-title').innerText = 'Add New Test';
     document.getElementById('test-highlight').checked = true;
+    document.getElementById('questions-container').innerHTML = ''; // Clear questions
     const modal = document.getElementById('test-modal');
     modal.style.display = 'flex';
     setTimeout(() => modal.classList.add('active'), 10);
@@ -159,6 +160,8 @@ function toggleAudioUrlField() {
     const audioDurGroup = document.getElementById('audio-dur-group');
     const audioDurInput = document.getElementById('test-audio-dur');
     
+    const wordQuestionsGroup = document.getElementById('word-questions-group');
+    
     if (type === 'typing') {
         audioGroup.style.display = 'none';
         audioInput.removeAttribute('required');
@@ -168,6 +171,19 @@ function toggleAudioUrlField() {
         
         if(audioDurGroup) audioDurGroup.style.display = 'none';
         if(audioDurInput) audioDurInput.removeAttribute('required');
+        
+        if(wordQuestionsGroup) wordQuestionsGroup.style.display = 'none';
+    } else if (type === 'word') {
+        audioGroup.style.display = 'none';
+        audioInput.removeAttribute('required');
+        
+        if(speedGroup) speedGroup.style.display = 'none';
+        if(speedInput) speedInput.removeAttribute('required');
+        
+        if(audioDurGroup) audioDurGroup.style.display = 'none';
+        if(audioDurInput) audioDurInput.removeAttribute('required');
+        
+        if(wordQuestionsGroup) wordQuestionsGroup.style.display = 'block';
     } else {
         audioGroup.style.display = 'block';
         audioInput.setAttribute('required', 'true');
@@ -177,7 +193,59 @@ function toggleAudioUrlField() {
         
         if(audioDurGroup) audioDurGroup.style.display = 'block';
         if(audioDurInput) audioDurInput.setAttribute('required', 'true');
+        
+        if(wordQuestionsGroup) wordQuestionsGroup.style.display = 'none';
     }
+}
+
+function addQuestionField(data = {}) {
+    const container = document.getElementById('questions-container');
+    const qCount = container.children.length + 1;
+    
+    const div = document.createElement('div');
+    div.className = 'question-block';
+    div.style.cssText = 'background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent); position: relative;';
+    
+    div.innerHTML = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong>Question ${qCount}</strong>
+            <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.parentElement.remove()" style="padding: 2px 8px; font-size: 12px;">Delete</button>
+        </div>
+        <div class="form-group">
+            <label>Question Text (e.g., Make paragraph 1 bold)</label>
+            <input type="text" class="form-control q-text" required value="${data.text || ''}">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+                <label>Target Element</label>
+                <select class="form-control q-target" required>
+                    <option value="p:nth-of-type(1)" ${data.target === 'p:nth-of-type(1)' ? 'selected' : ''}>Paragraph 1</option>
+                    <option value="p:nth-of-type(2)" ${data.target === 'p:nth-of-type(2)' ? 'selected' : ''}>Paragraph 2</option>
+                    <option value="p:nth-of-type(3)" ${data.target === 'p:nth-of-type(3)' ? 'selected' : ''}>Paragraph 3</option>
+                    <option value="p:nth-of-type(4)" ${data.target === 'p:nth-of-type(4)' ? 'selected' : ''}>Paragraph 4</option>
+                    <option value="p:nth-of-type(5)" ${data.target === 'p:nth-of-type(5)' ? 'selected' : ''}>Paragraph 5</option>
+                    <option value="h1" ${data.target === 'h1' ? 'selected' : ''}>Main Heading (h1)</option>
+                    <option value="h2" ${data.target === 'h2' ? 'selected' : ''}>Sub Heading (h2)</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>Expected Action</label>
+                <select class="form-control q-action" required>
+                    <option value="bold" ${data.action === 'bold' ? 'selected' : ''}>Bold</option>
+                    <option value="italic" ${data.action === 'italic' ? 'selected' : ''}>Italic</option>
+                    <option value="underline" ${data.action === 'underline' ? 'selected' : ''}>Underline</option>
+                    <option value="strikethrough" ${data.action === 'strikethrough' ? 'selected' : ''}>Strikethrough</option>
+                    <option value="align-center" ${data.action === 'align-center' ? 'selected' : ''}>Align Center</option>
+                    <option value="align-right" ${data.action === 'align-right' ? 'selected' : ''}>Align Right</option>
+                    <option value="align-justify" ${data.action === 'align-justify' ? 'selected' : ''}>Align Justify</option>
+                    <option value="color-red" ${data.action === 'color-red' ? 'selected' : ''}>Text Color Red</option>
+                    <option value="highlight-yellow" ${data.action === 'highlight-yellow' ? 'selected' : ''}>Highlight Yellow</option>
+                    <option value="font-size-large" ${data.action === 'font-size-large' ? 'selected' : ''}>Increase Font Size</option>
+                </select>
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
 }
 
 function closeModal(id) {
@@ -212,8 +280,22 @@ async function saveTest(e) {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    if (testData.type === 'typing') {
-        testData.audioUrl = ''; // No audio for typing test
+    // Extract questions if it's a word test
+    if (testData.type === 'word') {
+        const qBlocks = document.querySelectorAll('.question-block');
+        const questions = [];
+        qBlocks.forEach(block => {
+            questions.push({
+                text: block.querySelector('.q-text').value,
+                target: block.querySelector('.q-target').value,
+                action: block.querySelector('.q-action').value
+            });
+        });
+        testData.questions = questions;
+    }
+    
+    if (testData.type === 'typing' || testData.type === 'word') {
+        testData.audioUrl = ''; // No audio for typing/word test
     }
     
     try {
@@ -258,6 +340,12 @@ async function editTest(id) {
             document.getElementById('test-backspace').value = data.backspaceMode || 'full';
             document.getElementById('test-highlight').checked = data.allowHighlight !== false; // default true
             document.getElementById('test-navigation').checked = data.disableNavigation || false;
+            
+            // Load word questions
+            document.getElementById('questions-container').innerHTML = '';
+            if (data.type === 'word' && data.questions) {
+                data.questions.forEach(q => addQuestionField(q));
+            }
             
             document.getElementById('test-modal-title').innerText = 'Edit Test';
             const modal = document.getElementById('test-modal');

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HC Steno Wala - Word Efficiency Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .ribbon-btn { color: #333 !important; border-color: #ccc !important; }
+        .ribbon-btn:hover { background: #e1dfdd !important; }
+        #word-document p { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+    
+    <div id="toast-container" class="toast-container"></div>
+    
+    <nav class="navbar" id="main-navbar"></nav>
+    
+    <div class="container" style="padding-top: 80px; max-width: 1200px;">
+        <div class="card mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h2 id="test-title" style="margin-top: 0; margin-bottom: 5px;">Loading Test...</h2>
+                <span class="text-secondary">Word Efficiency Test</span>
+            </div>
+            
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <div style="text-align: right;">
+                    <div style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Time Left</div>
+                    <div id="time-display" style="font-size: 28px; font-weight: 800; font-family: monospace; color: var(--accent);">00:00</div>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-success" id="btn-start" onclick="startTestEngine()">Start Test ??</button>
+                <button class="btn btn-danger" id="btn-submit" onclick="submitTest()" style="display:none;">Submit Test ??</button>
+            </div>
+        </div>
+
+        <div id="questions-bar" class="card mb-4" style="display: none; background: rgba(0,0,0,0.3); border-left: 4px solid var(--accent);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-outline" id="btn-prev-q" onclick="prevQuestion()">Previous</button>
+                <div style="text-align: center; flex: 1; padding: 0 20px;">
+                    <h3 id="current-q-num" style="margin: 0 0 5px 0; color: var(--accent);">Question 1 of X</h3>
+                    <p id="current-q-text" style="margin: 0; font-size: 18px;">Loading question...</p>
+                </div>
+                <button class="btn btn-outline" id="btn-next-q" onclick="nextQuestion()">Next</button>
+            </div>
+        </div>
+
+        <div id="word-ui" class="card" style="padding: 0; overflow: hidden; background: #f3f2f1; display: none;">
+            <div id="word-ribbon" style="background: #ffffff; padding: 10px; border-bottom: 1px solid #e1dfdd; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <div style="font-weight: bold; color: #0078d4; margin-right: 10px;">Home</div>
+                <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('bold')" title="Bold"><b>B</b></button>
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('italic')" title="Italic"><i>I</i></button>
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('underline')" title="Underline"><u>U</u></button>
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('strikeThrough')" title="Strikethrough"><s>ab</s></button>
+                </div>
+                <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('justifyLeft')" title="Align Left">Left</button>
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('justifyCenter')" title="Align Center">Center</button>
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('justifyRight')" title="Align Right">Right</button>
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('justifyFull')" title="Justify">Justify</button>
+                </div>
+                <div style="display: flex; gap: 5px; align-items: center;">
+                    <label style="color: #000; font-size: 12px; margin:0;">Text:</label>
+                    <input type="color" id="text-color" onchange="formatDoc('foreColor', this.value)" title="Text Color" style="height: 30px;">
+                    <label style="color: #000; font-size: 12px; margin:0; margin-left: 10px;">Highlight:</label>
+                    <input type="color" id="hilite-color" onchange="formatDoc('hiliteColor', this.value)" value="#ffff00" title="Highlight Color" style="height: 30px;">
+                </div>
+            </div>
+            <div style="padding: 40px; display: flex; justify-content: center; background: #e1dfdd; min-height: 500px; max-height: 600px; overflow-y: auto;">
+                <div id="word-document" contenteditable="false" style="background: white; width: 100%; max-width: 800px; min-height: 800px; padding: 1in; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: #000; font-family: 'Kruti Dev 010', Arial, sans-serif; font-size: 14pt; line-height: 1.5; outline: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Instant Result Modal -->
+    <div id="result-modal" class="modal-overlay" style="display:none; z-index: 1000;">
+        <div class="modal card" style="max-width: 500px; text-align: center;">
+            <div class="modal-header">
+                <h2>Test Completed!</h2>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr; gap: 15px; text-align: center; margin-bottom: 25px;">
+                    <div style="background: rgba(var(--success-rgb), 0.1); padding: 20px; border-radius: 8px;">
+                        <div class="text-secondary" style="font-size: 14px;">Total Score</div>
+                        <div id="res-marks" style="font-size: 40px; font-weight: bold; color: var(--success);">0 / 100</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="goToScorecard()" style="width: 100%;">View Scorecard ??</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/word-test.js"></script>
+</body>
+</html>
