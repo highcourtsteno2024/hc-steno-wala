@@ -12,9 +12,19 @@
     <nav id="main-navbar"></nav>
 
     <div class="container" style="padding-top: 80px;">
-        <div class="page-header">
-            <h1>स्कोरकार्ड / परिणाम</h1>
-            <p class="text-secondary">आपके द्वारा दिए गए सभी टेस्ट्स का परिणाम यहाँ देखें</p>
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h1>स्कोरकार्ड / परिणाम</h1>
+                <p class="text-secondary">आपके द्वारा दिए गए सभी टेस्ट्स का परिणाम यहाँ देखें</p>
+            </div>
+            <div style="min-width: 200px;">
+                <select id="filter-type" class="form-control" onchange="renderResults()" style="background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
+                    <option value="all">All Tests</option>
+                    <option value="steno">Steno Dictation</option>
+                    <option value="typing">Typing Test</option>
+                    <option value="word">Word Efficiency</option>
+                </select>
+            </div>
         </div>
 
         <div class="stats-row" id="performance-summary">

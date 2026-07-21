@@ -38,14 +38,17 @@ async function loadResults(userId) {
 }
 
 function renderSummary() {
-    const totalTests = userResults.length;
+    const filterType = document.getElementById('filter-type') ? document.getElementById('filter-type').value : 'all';
+    const filteredResults = filterType === 'all' ? userResults : userResults.filter(r => (r.type || 'steno') === filterType);
+    
+    const totalTests = filteredResults.length;
     let avgScore = 0;
     let bestScore = 0;
     
     if (totalTests > 0) {
-        const totalMarks = userResults.reduce((acc, curr) => acc + (curr.marks || 0), 0);
+        const totalMarks = filteredResults.reduce((acc, curr) => acc + (curr.marks || 0), 0);
         avgScore = (totalMarks / totalTests).toFixed(2);
-        bestScore = Math.max(...userResults.map(r => r.marks || 0)).toFixed(2);
+        bestScore = Math.max(...filteredResults.map(r => r.marks || 0)).toFixed(2);
     }
     
     const summaryHtml = `
@@ -59,13 +62,51 @@ function renderSummary() {
 
 function renderResults() {
     const tbody = document.getElementById('results-table-body');
-    if (userResults.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center">आपने अभी तक कोई टेस्ट नहीं दिया है।</td></tr>';
+    const filterType = document.getElementById('filter-type') ? document.getElementById('filter-type').value : 'all';
+    
+    const filteredResults = filterType === 'all' ? userResults : userResults.filter(r => (r.type || 'steno') === filterType);
+    
+    // Also update summary when rendering results
+    renderSummary();
+    
+    const thead = document.querySelector('.data-table thead tr');
+    if (thead) {
+        if (filterType === 'word') {
+            thead.innerHTML = `
+                <th>S.No.</th>
+                <th>Date</th>
+                <th>Test Name</th>
+                <th>Total Qs</th>
+                <th>Wrong Qs</th>
+                <th>-</th>
+                <th>-</th>
+                <th>Marks (%)</th>
+                <th>Rank</th>
+                <th>Actions</th>
+            `;
+        } else {
+            thead.innerHTML = `
+                <th>S.No.</th>
+                <th>Date</th>
+                <th>Test Name</th>
+                <th>Total Words</th>
+                <th>Full Mistakes</th>
+                <th>Half Mistakes</th>
+                <th>Speed (WPM)</th>
+                <th>Marks (%)</th>
+                <th>Rank</th>
+                <th>Actions</th>
+            `;
+        }
+    }
+    
+    if (filteredResults.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">कोई डेटा उपलब्ध नहीं है।</td></tr>';
         return;
     }
     
     let html = '';
-    userResults.forEach((res, index) => {
+    filteredResults.forEach((res, index) => {
         const dateStr = formatDate(new Date(res.timestamp?.toDate ? res.timestamp.toDate() : res.timestamp));
         const marks = res.marks ? res.marks.toFixed(2) : '0.00';
         const colorClass = res.marks >= 80 ? 'text-success' : (res.marks < 50 ? 'text-error' : '');
