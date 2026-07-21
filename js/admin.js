@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('admin-panel').style.display = 'block';
             loadDashboardStats();
             loadTests();
+            loadLiveExams();
+            loadMCQTests();
             loadUsers();
         } else {
             document.getElementById('access-denied').style.display = 'block';
@@ -504,4 +506,146 @@ function handleTextUpload(event) {
         showToast("Error reading text file", "error");
     };
     reader.readAsText(file);
+}
+
+// ----- MCQ TEST BULK UPLOAD -----
+
+async function loadMCQTests() {
+    try {
+        const snapshot = await window.db.collection('mcq_tests').orderBy('createdAt', 'desc').get();
+        const tbody = document.getElementById('admin-mcqs-body');
+        
+        if (snapshot.empty) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No MCQ tests found</td></tr>';
+            return;
+        }
+        
+        let html = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            html += `
+                <tr>
+                    <td>${escapeHtml(data.name)}</td>
+                    <td>${data.questions ? data.questions.length : 0}</td>
+                    <td>${data.duration} Mins</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteMCQTest('${doc.id}')">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+async function deleteMCQTest(id) {
+    if (!confirm('Are you sure you want to delete this MCQ test?')) return;
+    try {
+        await window.db.collection('mcq_tests').doc(id).delete();
+        showToast('MCQ test deleted successfully', 'success');
+        loadMCQTests();
+    } catch(e) {
+        showToast('Error deleting test', 'error');
+        console.error(e);
+    }
+}
+
+document.getElementById('mcq-upload-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('mcq-upload-btn');
+    const statusDiv = document.getElementById('mcq-upload-status');
+    btn.disabled = true;
+    statusDiv.innerText = 'Processing Word file...'; 
+    statusDiv.style.color = 'var(--primary)';
+
+    const name = document.getElementById('mcq-subject-name').value.trim();
+    const duration = parseInt(document.getElementById('mcq-duration').value);
+    const negativeMark = parseFloat(document.getElementById('mcq-negative-mark').value);
+    const fileInput = document.getElementById('mcq-word-file');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        statusDiv.innerText = 'Please select a file.';
+        statusDiv.style.color = 'red';
+        btn.disabled = false;
+        return;
+    }
+
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+        const text = result.value;
+
+        const questions = parseMCQText(text);
+        if (questions.length === 0) {
+            throw new Error('No questions could be parsed. Please check the format.');
+        }
+
+        statusDiv.innerText = `Found ${questions.length} questions. Uploading...`;
+
+        const examData = {
+            name: name,
+            type: 'mcq',
+            duration: duration,
+            negativeMark: negativeMark,
+            questions: questions,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await window.db.collection('mcq_tests').add(examData);
+
+        statusDiv.innerText = 'Successfully uploaded!';
+        statusDiv.style.color = 'green';
+        document.getElementById('mcq-upload-form').reset();
+        loadMCQTests();
+    } catch (e) {
+        statusDiv.innerText = 'Error: ' + e.message;
+        statusDiv.style.color = 'red';
+        console.error(e);
+    } finally {
+        btn.disabled = false;
+    }
+});
+
+function parseMCQText(text) {
+    const questions = [];
+    // Split text by "Q1.", "Q2.", etc.
+    const blocks = text.split(/(?=Q\d+\.)/);
+
+    for (let i = 0; i < blocks.length; i++) {
+        let block = blocks[i].trim();
+        if (!block.startsWith('Q')) continue;
+        
+        try {
+            // Very strict format assumption for demo purposes.
+            // In a real scenario, extensive regex handles edge cases.
+            
+            let qText = block.match(/Q\d+\.(.*?)(?=A\))/s);
+            let optA = block.match(/A\)(.*?)(?=B\))/s);
+            let optB = block.match(/B\)(.*?)(?=C\))/s);
+            let optC = block.match(/C\)(.*?)(?=D\))/s);
+            let optD = block.match(/D\)(.*?)(?=Ans:)/s);
+            let ans = block.match(/Ans:\s*([A-D])/i);
+            let exp = block.match(/Exp:(.*)/s);
+
+            if (qText && optA && optB && optC && optD && ans) {
+                questions.push({
+                    question: qText[1].trim(),
+                    options: [
+                        optA[1].trim(),
+                        optB[1].trim(),
+                        optC[1].trim(),
+                        optD[1].trim()
+                    ],
+                    answer: ans[1].toUpperCase(),
+                    explanation: exp ? exp[1].trim() : ''
+                });
+            }
+        } catch(parseExc) {
+            console.log('Could not parse block:', block);
+        }
+    }
+    return questions;
 }

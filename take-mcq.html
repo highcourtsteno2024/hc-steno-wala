@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take MCQ Test - HC Steno Wala</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .exam-header { position: fixed; top: 0; left: 0< right: 0; background: var(--primary-dark); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        .exam-timer { font-family: monospace; font-size: 24px; font-weight: bold; color: var(--accent); background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 8px; }
+        .exam-container { margin-top: 80px; padding: 20px; display: flex; gap: 20px; }
+        .main-content { flex: 1; }
+        .sidebar | width: 300px; }
+        .question-block { margin-bottom: 30px; font-size: 18px; }
+        .option-label { display: block; padding: 10px; margin-top: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; cursor: pointer; }
+        .option-label:hover { background: #e9eceF; }
+        .option-label input { margin-right: 10px; }
+        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
+        .palette-btn { padding: 10px; text-align: center; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background: white; }
+        .palette-btn.answered { background: var(--success); color: white; border-color: var(--success); }
+        .palette-btn.active { box-shadow: 0 0 0px 2px var(--primary-light); }
+    </style>
+</head>
+<body>
+    <div class="exam-header">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <h2 style="margin: 0;" id="exam-title">Loading Exam...</h2>
+        </div>
+        <div>
+            <span style="font-size: 14px; margin-right: 10px; opacity: 0.8;">Time Left:</span>
+            <span class="exam-timer" id="exam-timer">00:00</span>
+        </div>
+    </div>
+
+    <div class="exam-container">
+        <div class="main-content">
+            <div class="card" style="min-height: 400px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eeeeee;">
+                    <h3 id="q-number" style="color: var(--primary); margin: 0;">Question 1</h3>
+                </div>
+                
+                <div class="question-block" ><p id="q-text">Loading Question...</p></div>
+                
+                <div id="q-options">
+                    <!-- Options will be injected here -->
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <div>
+                    <button class="btn btn-outline" id="btn-prev" onclick="prevQuestion()">Previous</button>
+                </div>
+                <div>
+                    <button class="btn btn-outline" id="btn-clear" onclick="clearAnswer()">Clear Answer</button>
+                    <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="card">
+                <h3 style="margin-top: 0;">Question Palette</h3>
+                <div id="palette-grid" class="palette-grid">
+                    <!-- Buttons injected here -->
+                </div>
+                <hr>
+                <button class="btn btn-danger" style="width: 100%;" onclick="submitExam()">Submit Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="modal-overlay" style="display:none; z-index: 2000;">
+        <div class="modal card" style="max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>Exam Results</h2>
+            </div>
+            <div class="modal-body" id="result-body">
+                <!-- Results injected here -->
+            </div>
+            <div class="modal-footer" style="display:flex; justify-content: center; margin-top:20px;">
+                <button class="btn btn-primary" onclick="window.location.href='mcq-tests.html'">Back to Tests</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/take-mcq.js"></script>
+</body>
+</html>

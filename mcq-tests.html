@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Tests - HC Steno Wala</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400?500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav id="main-nav" class="navbar" aria-label="Main navigation"></nav>
+
+    <main class="container">
+        <div class="header-section">
+            <span class="subtitle">PRACTICE & EXCEL</span>
+            <h1 class="page-title">MCQ Tests</h1>
+            <p class="page-description">Prepare for various exams with our comprehensive Multiple Choice Question sets.</p>
+        </div>
+
+        <div class="filter-bar">
+            <input type="text" id="search-tests" class="search-input" placeholder="Search tests...">
+        </div>
+
+        <div id="test-grid" class="test-grid">
+            <div class="text-center" style="grid-column: 1 / -1; padding: 40px;">
+                <div class="loading-spinner"></div>
+                <p>Loading MCQ tests...</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/mcq-tests.js"></script>
+</body>
+</html>
