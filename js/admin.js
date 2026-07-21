@@ -611,24 +611,21 @@ document.getElementById('mcq-upload-form')?.addEventListener('submit', async (e)
 
 function parseMCQText(text) {
     const questions = [];
-    // Split text by "Q1.", "Q2.", etc.
-    const blocks = text.split(/(?=Q\d+\.)/);
+    const blocks = text.split(/(?=Q\d+\.)/i);
+    let failedBlocks = 0;
 
     for (let i = 0; i < blocks.length; i++) {
         let block = blocks[i].trim();
-        if (!block.startsWith('Q')) continue;
+        if (!/^Q\d+\./i.test(block)) continue;
         
         try {
-            // Very strict format assumption for demo purposes.
-            // In a real scenario, extensive regex handles edge cases.
-            
-            let qText = block.match(/Q\d+\.(.*?)(?=A\))/s);
-            let optA = block.match(/A\)(.*?)(?=B\))/s);
-            let optB = block.match(/B\)(.*?)(?=C\))/s);
-            let optC = block.match(/C\)(.*?)(?=D\))/s);
-            let optD = block.match(/D\)(.*?)(?=Ans:)/s);
-            let ans = block.match(/Ans:\s*([A-D])/i);
-            let exp = block.match(/Exp:(.*)/s);
+            let qText = block.match(/Q\d+\.(.*?)(?=A[\)\.])/is);
+            let optA = block.match(/A[\)\.](.*?)(?=B[\)\.])/is);
+            let optB = block.match(/B[\)\.](.*?)(?=C[\)\.])/is);
+            let optC = block.match(/C[\)\.](.*?)(?=D[\)\.])/is);
+            let optD = block.match(/D[\)\.](.*?)(?=(?:Ans|Answer)\s*:)/is);
+            let ans = block.match(/(?:Ans|Answer)\s*:\s*([A-D])/is);
+            let exp = block.match(/(?:Exp|Explanation)\s*:(.*)/is);
 
             if (qText && optA && optB && optC && optD && ans) {
                 questions.push({
@@ -642,10 +639,17 @@ function parseMCQText(text) {
                     answer: ans[1].toUpperCase(),
                     explanation: exp ? exp[1].trim() : ''
                 });
+            } else {
+                failedBlocks++;
             }
         } catch(parseExc) {
-            console.log('Could not parse block:', block);
+            failedBlocks++;
         }
     }
+    
+    if (questions.length === 0 && failedBlocks > 0) {
+        throw new Error(`Found ${failedBlocks} question blocks but failed to parse them. Please ensure the format exactly uses A), B), C), D) and Ans:`);
+    }
+    
     return questions;
 }
