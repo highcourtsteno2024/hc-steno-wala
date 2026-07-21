@@ -77,6 +77,27 @@
                     </table>
                 </div>
             </div>
+
+            <div class="card mt-4">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>Live Exam Bundles</h3>
+                    <button class="btn btn-primary" onclick="openLiveExamModal()">+ Create Live Exam</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Exam Name</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-live-exams-body">
+                            <tr><td colspan="3" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- Section: Users -->
@@ -239,5 +260,51 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/admin.js"></script>
+
+    <!-- Live Exam Modal -->
+    <div id="live-exam-modal" class="modal-overlay" style="display:none; z-index: 1000;">
+        <div class="modal card" style="max-width: 600px; width: 95%;">
+            <div class="modal-header">
+                <h2 id="live-modal-title">Create Live Exam</h2>
+                <button class="btn btn-outline" style="border:none; font-size:24px;" onclick="closeLiveExamModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="live-exam-form">
+                    <input type="hidden" id="live-exam-id">
+                    
+                    <div class="form-group">
+                        <label>Exam Bundle Name (e.g., High Court Mock Test 1)</label>
+                        <input type="text" id="live-exam-name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Select Steno Dictation Test</label>
+                        <select id="live-steno-id" class="form-control" required>
+                            <option value="">-- Loading Tests --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Select Typing Test</label>
+                        <select id="live-typing-id" class="form-control" required>
+                            <option value="">-- Loading Tests --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Word Efficiency Test</label>
+                        <select id="live-word-id" class="form-control" required>
+                            <option value="">-- Loading Tests --</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary" style="flex:1;" id="live-btn-save">Save Live Exam</button>
+                        <button type="button" class="btn btn-outline" style="flex:1;" onclick="closeLiveExamModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

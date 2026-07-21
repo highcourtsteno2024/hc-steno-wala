@@ -125,6 +125,67 @@ function formatDoc(cmd, value = null) {
     document.execCommand(cmd, false, value);
 }
 
+function switchRibbonTab(tabName) {
+    document.querySelectorAll('.ribbon-tab').forEach(t => {
+        t.classList.remove('active');
+        t.style.color = '#333';
+        t.style.borderBottom = 'none';
+    });
+    const activeTab = document.getElementById('tab-' + tabName);
+    activeTab.classList.add('active');
+    activeTab.style.color = '#0078d4';
+    activeTab.style.borderBottom = '2px solid #0078d4';
+
+    document.querySelectorAll('.ribbon-panel').forEach(p => p.style.display = 'none');
+    document.getElementById('ribbon-' + tabName).style.display = 'flex';
+}
+
+function insertTable() {
+    if (!isTestRunning) return;
+    document.getElementById('word-document').focus();
+    const tableHTML = '<table border="1" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;"><tr><td>Cell 1</td><td>Cell 2</td></tr><tr><td>Cell 3</td><td>Cell 4</td></tr></table><br>';
+    document.execCommand('insertHTML', false, tableHTML);
+}
+
+function insertImage() {
+    if (!isTestRunning) return;
+    document.getElementById('word-document').focus();
+    const imgHTML = '<img src="https://via.placeholder.com/150" alt="Placeholder" style="max-width: 100%; height: auto; margin-bottom: 10px;" /><br>';
+    document.execCommand('insertHTML', false, imgHTML);
+}
+
+function getSelectedParagraph() {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        let node = selection.anchorNode;
+        if (node.nodeType === 3) node = node.parentNode;
+        while(node && node.id !== 'word-document' && node.nodeName !== 'P') {
+            node = node.parentNode;
+        }
+        if (node && (node.nodeName === 'P' || node.id === 'word-document')) {
+            return node;
+        }
+    }
+    return null;
+}
+
+function changeMargin(side) {
+    if (!isTestRunning) return;
+    const node = getSelectedParagraph();
+    if (node) {
+        let current = parseInt(node.style[side]) || 0;
+        node.style[side] = (current + 20) + 'px';
+    }
+}
+
+function changeLineSpacing(val) {
+    if (!isTestRunning) return;
+    const node = getSelectedParagraph();
+    if (node) {
+        node.style.lineHeight = val;
+    }
+}
+
 async function autoSubmit() {
     showToast("Time's up! Auto-submitting...", "info");
     await submitTest();
@@ -180,6 +241,18 @@ async function submitTest() {
                             isCorrect = !!targetEl.querySelector('[style*="background-color: rgb(255, 255, 0)"]');
                         } else if (q.action === 'font-size-large') {
                             isCorrect = !!targetEl.querySelector('font[size="4"]') || !!targetEl.querySelector('font[size="5"]');
+                        } else if (q.action === 'insert-table') {
+                            isCorrect = !!targetEl.querySelector('table');
+                        } else if (q.action === 'insert-image') {
+                            isCorrect = !!targetEl.querySelector('img');
+                        } else if (q.action === 'margin-left-increase') {
+                            isCorrect = parseInt(inlineStyle.marginLeft) > 0 || parseInt(style.marginLeft) > 0;
+                        } else if (q.action === 'margin-right-increase') {
+                            isCorrect = parseInt(inlineStyle.marginRight) > 0 || parseInt(style.marginRight) > 0;
+                        } else if (q.action === 'line-spacing-2') {
+                            isCorrect = inlineStyle.lineHeight === '2' || inlineStyle.lineHeight === '200%' || style.lineHeight === '2';
+                        } else if (q.action === 'indent-increase') {
+                            isCorrect = targetEl.querySelector('blockquote') !== null || targetEl.closest('blockquote') !== null;
                         }
                     }
                 } catch (e) {

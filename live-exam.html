@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Exam - HC Steno Wala</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400?500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { background-color: #f0f2f5; }
+        .exam-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--primary-dark);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .exam-phase-badge {
+            background: var(--accent);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .exam-timer {
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent);
+            background: rgba(0,0,0,0.3);
+            padding: 5px 15px;
+            border-radius: 8px;
+        }
+        .exam-content {
+            margin-top: 80px;
+            padding: 20px;
+        }
+        
+        /* Overlays for breaks / readings */
+        .exam-overlay {
+            position: fixed;
+            top: 60px; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            text-align: center;
+        }
+        .exam-overlay h1 { font-size: 48px; margin-bottom: 20px; color: var(--accent); }
+        .exam-overlay p { font-size: 20px; max-width: 600px; }
+        
+        /* Typing Area Styles (Shared from Typing Test) */
+        .typing-textarea {
+            width: 100%; height: 300px; padding: 20px;
+            font-size: 22px; line-height: 1.6; border: 2px solid var(--border);
+            border-radius: 12px; resize: none; outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .krutidev-text { font-family: 'Kruti Dev 010', Arial, sans-serif; font-size: 26px; }
+        
+        /* Word Ribbon Styles */
+        .ribbon-btn { color: #333 !important; border-color: #ccc !important; }
+        .ribbon-btn:hover { background: #e1dfdd !important; }
+        #word-document p { margin-bottom: 10px; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    
+    <div class="exam-header">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <h2 style="margin: 0;" id="exam-title">Loading Exam...</h2>
+            <div class="exam-phase-badge" id="exam-phase">Initializing</div>
+        </div>
+        <div>
+            <span style="font-size: 14px; margin-right: 10px; opacity: 0.8;">Time Left:</span>
+            <span class="exam-timer" id="exam-timer">00:00</span>
+        </div>
+    </div>
+
+    <!-- OVERLAYS -->
+    <div id="overlay-waiting" class="exam-overlay">
+        <h1>Please Wait</h1>
+        <p>The exam is preparing to start. Do not close or refresh this page.</p>
+        <p id="overlay-countdown" style="font-size: 40px; font-weight: bold; margin-top: 30px;">5</p>
+    </div>
+
+    <div class="exam-content container">
+        
+        <!-- STENO UI -->
+        <div id="ui-steno" class="hidden">
+            <div class="card mb-4" style="text-align: center;" id="steno-audio-container">
+                <h3 style="color: var(--primary);">Dictation Audio</h3>
+                <audio id="steno-audio" controls style="width: 100%; max-width: 500px; margin-top: 20px;">
+                    <source src="" type="audio/mpeg">
+                </audio>
+                <p class="text-secondary mt-3">Please listen to the dictation carefully. Transcription will begin after the reading time.</p>
+            </div>
+            
+            <div class="card" id="steno-typing-container" style="opacity: 0.5; pointer-events: none;">
+                <h3 style="margin-top: 0;">Transcription Area</h3>
+                <textarea id="steno-textarea" class="typing-textarea krutidev-text" placeholder="�>��9x�<X<�<�`�<d���c���
+                Loading text...
+            </div>
+        </div>
+        <div class="card">
+            <textarea id="typing-textarea" class="typing-textarea krutidev-text" placeholder="�>��9x�<X<�<�`�<d���c��>
+        </div>
+    </div>
+
+        <!-- WORD UI -->
+        <div id="ui-word" class="hidden">
+            <div id="questions-bar" class="card mb-4" style="background: rgba(0,0,0,0.3); border-left: 4px solid var(--accent); color: white;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button class="btn btn-outline" id="btn-prev-q" onclick="prevQuestion()" style="color: white; border-color: white;">Previous</button>
+                    <div style="text-align: center; flex: 1; padding: 0 20px;">
+                        <h3 id="current-q-num" style="margin: 0 0 5px 0; color: var(--accent);">Question 1 of X</h3>
+                        <p id="current-q-text" style="margin: 0; font-size: 18px;">Loading question...</p>
+                    </div>
+                    <button class="btn btn-outline" id="btn-next-q" onclick="nextQuestion()" style="color: white; border-color: white;">Next</button>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden; background: #f3f2f1;">
+                <div id="word-ribbon-tabs" style="background: #f3f2f1; border-bottom: 1px solid #e1dfdd; display: flex;">
+                    <div class="ribbon-tab active" onclick="switchRibbonTab('home')" id="tab-home" style="padding: 5px 15px; cursor: pointer; color: #0078d4; border-bottom: 2px solid #0078d4;">Home</div>
+                    <div class="ribbon-tab" onclick="switchRibbonTab('insert')" id="tab-insert" style="padding: 5px 15px; cursor: pointer; color: #333;">Insert</div>
+                    <div class="ribbon-tab" onclick="switchRibbonTab('page-layout')" id="tab-page-layout" style="padding: 5px 15px; cursor: pointer; color: #333;">Page Layout</div>
+                </div>
+
+                <div id="ribbon-home" class="ribbon-panel" style="background: #ffffff; padding: 10px; border-bottom: 1px solid #e1dfdd; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('bold')" title="Bold"><b>B</b></button>
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('italic')" title="Italic"><i>I</i></button>
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('underline')" title="Underline"><u>U</u></button>
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('strikeThrough')" title="Strikethrough"><s>ab</ts></button>
+                    </div>
+                    <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('justifyLeft')" title="Align Left">Left</button>
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('justifyCenter')" title="Align Center">Center</button>
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('justifyRight')" title="Align Right">Right</button>
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('justifyFull')" title="Justify">Justify</button>
+                    </div>
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <label style="color: #000; font-size: 12px; margin:0;">Text:</label>
+                        <input type="color" id="text-color" onchange="formatDoc('jiliteColor', this.value)" title="Text Color" style="height: 30px;">
+                        <label style="color: #000; font-size: 12px; margin:0; margin-left: 10px;">Highlight:</label>
+                        <input type="color" id="hilite-color" onchange="formatDoc('hiliteColor', this.value)" value="#ffff00" title="Highlight Color" style="height: 30px;">
+                    </div>
+                </div>
+
+                <div id="ribbon-insert" class="ribbon-panel" style="background: #ffffff; padding: 10px; border-bottom: 1px solid #e1dfdd; display: none; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="insertTable()" title="Insert Table">Table</button>
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="insertImage()" title="Insert Image">Image</button>
+                    </div>
+                </div>
+
+                <div id="ribbon-page-layout" class="ribbon-panel" style="background: #ffffff; padding: 10px; border-bottom: 1px solid #e1dfdd; display: none; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('indent')" title="Increase Indent">Indent +</button>
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('outdent')" title="Decrease Indent">Indent -</button>
+                    </div>
+                    <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="changeMargin('marginLeft')" title="Increase Left Margin">Left Margin +</button>
+                        <button class="btn btn-sm btn-outline ribbon-btn" onclick="changeMargin('marginRight')" title="Increase Right Margin">Right Margin +</button>
+                    </div>
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <label style="color: #000; font-size: 12px; margin:0;">Line Spacing:</label>
+                        <select class="form-control" style="height: 30px; padding: 2px; width: 60px;" onchange="changeLineSpacing(this.value)">
+                            <option value="1">1.0</option>
+                            <option value="1.5">1.5</option>
+                            <option value="2">2.0</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="padding: 40px; display: flex; justify-content: center; background: #e1dfdd; min-height: 500px; max-height: 600px; overflow-y: auto;">
+                    <div id="word-document" contenteditable="true" style="background: white; width: 100%; max-width: 800px; min-height: 800px; padding: 1in; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: #000; font-family: 'Kruti Dev 010', Arial, sans-serif; font-size: 14pt; line-height: 1.5; outline: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Results Modal -->
+    <div id="result-modal" class="modal-overlay" style="display:none; z-index: 1000;">
+        <div class="modal card" style="max-width: 500px; text-align: center;">
+            <div class="modal-header">
+                <h2>Exam Completed!</h2>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <p class="text-secondary" style="font-size: 18px;">You have successfully completed all 3 phases of the Live Exam.</p>
+                <button class="btn btn-primary" onclick="window.location.href='scorecard.html'" style="width: 100%; margin-top: 20px;">View Scorecard ⇒</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/live-exam.js"></script>
+</body>
+</html>

@@ -91,6 +91,8 @@ async function loadTests() {
         console.error(error);
         document.getElementById('admin-tests-body').innerHTML = '<tr><td colspan="6" class="text-center text-error">Error loading tests</td></tr>';
     }
+    // Also load live exams
+    loadLiveExams();
 }
 
 async function loadUsers() {
@@ -241,6 +243,12 @@ function addQuestionField(data = {}) {
                     <option value="color-red" ${data.action === 'color-red' ? 'selected' : ''}>Text Color Red</option>
                     <option value="highlight-yellow" ${data.action === 'highlight-yellow' ? 'selected' : ''}>Highlight Yellow</option>
                     <option value="font-size-large" ${data.action === 'font-size-large' ? 'selected' : ''}>Increase Font Size</option>
+                    <option value="insert-table" ${data.action === 'insert-table' ? 'selected' : ''}>Insert Table (Insert Tab)</option>
+                    <option value="insert-image" ${data.action === 'insert-image' ? 'selected' : ''}>Insert Image (Insert Tab)</option>
+                    <option value="margin-left-increase" ${data.action === 'margin-left-increase' ? 'selected' : ''}>Increase Left Margin (Page Layout)</option>
+                    <option value="margin-right-increase" ${data.action === 'margin-right-increase' ? 'selected' : ''}>Increase Right Margin (Page Layout)</option>
+                    <option value="line-spacing-2" ${data.action === 'line-spacing-2' ? 'selected' : ''}>Double Line Spacing (Page Layout)</option>
+                    <option value="indent-increase" ${data.action === 'indent-increase' ? 'selected' : ''}>Increase Indent (Page Layout)</option>
                 </select>
             </div>
         </div>
@@ -372,6 +380,113 @@ async function deleteTest(id) {
     } catch (error) {
         console.error(error);
         showToast("Error deleting test", "error");
+    }
+}
+
+// ── Live Exams Management ──
+let allLiveExams = [];
+
+async function loadLiveExams() {
+    try {
+        const snapshot = await window.db.collection('live_exams').orderBy('createdAt', 'desc').get();
+        allLiveExams = [];
+        let html = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            allLiveExams.push({ id: doc.id, ...data });
+            const dateStr = data.createdAt && data.createdAt.toDate ? new Date(data.createdAt.toDate()).toLocaleDateString() : 'N/A';
+            
+            html += `
+                <tr>
+                    <td>${escapeHtml(data.name)}</td>
+                    <td>${dateStr}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteLiveExam('${doc.id}')">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        if (allLiveExams.length === 0) {
+            html = '<tr><td colspan="3" class="text-center">No live exams found.</td></tr>';
+        }
+        document.getElementById('admin-live-exams-body').innerHTML = html;
+        
+        populateLiveExamDropdowns();
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+function populateLiveExamDropdowns() {
+    const stenoSelect = document.getElementById('live-steno-id');
+    const typingSelect = document.getElementById('live-typing-id');
+    const wordSelect = document.getElementById('live-word-id');
+    
+    stenoSelect.innerHTML = '<option value="">-- Select Steno Test --</option>';
+    typingSelect.innerHTML = '<option value="">-- Select Typing Test --</option>';
+    wordSelect.innerHTML = '<option value="">-- Select Word Test --</option>';
+    
+    allTests.forEach(test => {
+        const option = `<option value="${test.id}">${escapeHtml(test.name)}</option>`;
+        if (test.type === 'steno') stenoSelect.innerHTML += option;
+        if (test.type === 'typing') typingSelect.innerHTML += option;
+        if (test.type === 'word') wordSelect.innerHTML += option;
+    });
+}
+
+function openLiveExamModal() {
+    document.getElementById('live-exam-form').reset();
+    document.getElementById('live-exam-id').value = '';
+    document.getElementById('live-modal-title').innerText = 'Create Live Exam';
+    const modal = document.getElementById('live-exam-modal');
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 10);
+}
+
+function closeLiveExamModal() {
+    const modal = document.getElementById('live-exam-modal');
+    modal.classList.remove('active');
+    setTimeout(() => modal.style.display = 'none', 300);
+}
+
+document.getElementById('live-exam-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('live-btn-save');
+    btn.innerText = 'Saving...';
+    btn.disabled = true;
+    
+    const data = {
+        name: document.getElementById('live-exam-name').value,
+        stenoTestId: document.getElementById('live-steno-id').value,
+        typingTestId: document.getElementById('live-typing-id').value,
+        wordTestId: document.getElementById('live-word-id').value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    try {
+        await window.db.collection('live_exams').add(data);
+        showToast('Live Exam created successfully', 'success');
+        closeLiveExamModal();
+        loadLiveExams();
+    } catch(e) {
+        console.error(e);
+        showToast('Error saving Live Exam', 'error');
+    } finally {
+        btn.innerText = 'Save Live Exam';
+        btn.disabled = false;
+    }
+});
+
+async function deleteLiveExam(id) {
+    if (!confirm('Are you sure you want to delete this Live Exam?')) return;
+    try {
+        await window.db.collection('live_exams').doc(id).delete();
+        showToast('Deleted successfully', 'success');
+        loadLiveExams();
+    } catch(e) {
+        console.error(e);
+        showToast('Error deleting', 'error');
     }
 }
 

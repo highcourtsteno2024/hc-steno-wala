@@ -53,8 +53,13 @@
         </div>
 
         <div id="word-ui" class="card" style="padding: 0; overflow: hidden; background: #f3f2f1; display: none;">
-            <div id="word-ribbon" style="background: #ffffff; padding: 10px; border-bottom: 1px solid #e1dfdd; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                <div style="font-weight: bold; color: #0078d4; margin-right: 10px;">Home</div>
+            <div id="word-ribbon-tabs" style="background: #f3f2f1; border-bottom: 1px solid #e1dfdd; display: flex;">
+                <div class="ribbon-tab active" onclick="switchRibbonTab('home')" id="tab-home" style="padding: 5px 15px; cursor: pointer; color: #0078d4; border-bottom: 2px solid #0078d4;">Home</div>
+                <div class="ribbon-tab" onclick="switchRibbonTab('insert')" id="tab-insert" style="padding: 5px 15px; cursor: pointer; color: #333;">Insert</div>
+                <div class="ribbon-tab" onclick="switchRibbonTab('page-layout')" id="tab-page-layout" style="padding: 5px 15px; cursor: pointer; color: #333;">Page Layout</div>
+            </div>
+
+            <div id="ribbon-home" class="ribbon-panel" style="background: #ffffff; padding: 10px; border-bottom: 1px solid #e1dfdd; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
                 <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
                     <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('bold')" title="Bold"><b>B</b></button>
                     <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('italic')" title="Italic"><i>I</i></button>
@@ -72,6 +77,32 @@
                     <input type="color" id="text-color" onchange="formatDoc('foreColor', this.value)" title="Text Color" style="height: 30px;">
                     <label style="color: #000; font-size: 12px; margin:0; margin-left: 10px;">Highlight:</label>
                     <input type="color" id="hilite-color" onchange="formatDoc('hiliteColor', this.value)" value="#ffff00" title="Highlight Color" style="height: 30px;">
+                </div>
+            </div>
+
+            <div id="ribbon-insert" class="ribbon-panel" style="background: #ffffff; padding: 10px; border-bottom: 1px solid #e1dfdd; display: none; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="insertTable()" title="Insert Table">Table</button>
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="insertImage()" title="Insert Image">Image</button>
+                </div>
+            </div>
+
+            <div id="ribbon-page-layout" class="ribbon-panel" style="background: #ffffff; padding: 10px; border-bottom: 1px solid #e1dfdd; display: none; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('indent')" title="Increase Indent">Indent +</button>
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="formatDoc('outdent')" title="Decrease Indent">Indent -</button>
+                </div>
+                <div style="display: flex; gap: 5px; border-right: 1px solid #e1dfdd; padding-right: 15px;">
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="changeMargin('marginLeft')" title="Increase Left Margin">Left Margin +</button>
+                    <button class="btn btn-sm btn-outline ribbon-btn" onclick="changeMargin('marginRight')" title="Increase Right Margin">Right Margin +</button>
+                </div>
+                <div style="display: flex; gap: 5px; align-items: center;">
+                    <label style="color: #000; font-size: 12px; margin:0;">Line Spacing:</label>
+                    <select class="form-control" style="height: 30px; padding: 2px; width: 60px;" onchange="changeLineSpacing(this.value)">
+                        <option value="1">1.0</option>
+                        <option value="1.5">1.5</option>
+                        <option value="2">2.0</option>
+                    </select>
                 </div>
             </div>
             <div style="padding: 40px; display: flex; justify-content: center; background: #e1dfdd; min-height: 500px; max-height: 600px; overflow-y: auto;">
