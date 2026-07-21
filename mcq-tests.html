@@ -13,11 +13,15 @@
     <main class="container">
         <div class="header-section">
             <span class="subtitle">PRACTICE & EXCEL</span>
-            <h1 class="page-title">MCQ Tests</h1>
+            <h1 class="page-title" id="page-main-title">MCQ Categories</h1>
             <p class="page-description">Prepare for various exams with our comprehensive Multiple Choice Question sets.</p>
         </div>
 
-        <div class="filter-bar">
+        <div id="breadcrumb" style="display: none; margin-bottom: 20px;">
+            <button onclick="showCategories()" class="btn btn-secondary" style="background: transparent; color: var(--primary); padding: 5px 0;">← Back to Categories</button>
+        </div>
+
+        <div class="filter-bar" id="search-container" style="display: none;">
             <input type="text" id="search-tests" class="search-input" placeholder="Search tests...">
         </div>
 

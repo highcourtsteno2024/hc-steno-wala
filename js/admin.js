@@ -522,12 +522,13 @@ async function loadMCQTests() {
         
         let html = '';
         snapshot.forEach(doc => {
-            const data = doc.data();
+            const test = doc.data();
             html += `
                 <tr>
-                    <td>${escapeHtml(data.name)}</td>
-                    <td>${data.questions ? data.questions.length : 0}</td>
-                    <td>${data.duration} Mins</td>
+                    <td>${escapeHtml(test.category || 'Other')}</td>
+                    <td>${escapeHtml(test.name)}</td>
+                    <td>${test.questions ? test.questions.length : 0}</td>
+                    <td>${test.duration} Mins</td>
                     <td>
                         <button class="btn btn-sm btn-danger" onclick="deleteMCQTest('${doc.id}')">Delete</button>
                     </td>
@@ -560,23 +561,32 @@ document.getElementById('mcq-upload-form')?.addEventListener('submit', async (e)
     statusDiv.innerText = 'Processing Word file...'; 
     statusDiv.style.color = 'var(--primary)';
 
+    const category = document.getElementById('mcq-category').value;
     const name = document.getElementById('mcq-subject-name').value.trim();
     const duration = parseInt(document.getElementById('mcq-duration').value);
     const negativeMark = parseFloat(document.getElementById('mcq-negative-mark').value);
     const fileInput = document.getElementById('mcq-word-file');
     const file = fileInput.files[0];
+    const rawText = document.getElementById('mcq-raw-text').value.trim();
 
-    if (!file) {
-        statusDiv.innerText = 'Please select a file.';
+    if (!rawText && !file) {
+        statusDiv.innerText = 'Please select a file OR paste raw text.';
         statusDiv.style.color = 'red';
         btn.disabled = false;
         return;
     }
 
     try {
-        const arrayBuffer = await file.arrayBuffer();
-        const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-        const text = result.value;
+        let text = '';
+        if (rawText) {
+            text = rawText;
+            statusDiv.innerText = 'Processing raw text...';
+        } else {
+            statusDiv.innerText = 'Processing Word file...'; 
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+            text = result.value;
+        }
 
         const questions = parseMCQText(text);
         if (questions.length === 0) {
@@ -586,8 +596,8 @@ document.getElementById('mcq-upload-form')?.addEventListener('submit', async (e)
         statusDiv.innerText = `Found ${questions.length} questions. Uploading...`;
 
         const examData = {
+            category: category,
             name: name,
-            type: 'mcq',
             duration: duration,
             negativeMark: negativeMark,
             questions: questions,
