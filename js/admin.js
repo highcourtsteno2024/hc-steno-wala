@@ -56,6 +56,7 @@ async function loadTests() {
         const snapshot = await window.db.collection('tests').get();
         const tests = [];
         snapshot.forEach(doc => tests.push({ id: doc.id, ...doc.data() }));
+        window.allTests = tests;
         
         tests.sort((a, b) => {
             const timeA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
@@ -427,7 +428,7 @@ function populateLiveExamDropdowns() {
     typingSelect.innerHTML = '<option value="">-- Select Typing Test --</option>';
     wordSelect.innerHTML = '<option value="">-- Select Word Test --</option>';
     
-    allTests.forEach(test => {
+    (window.allTests || []).forEach(test => {
         const option = `<option value="${test.id}">${escapeHtml(test.name)}</option>`;
         if (test.type === 'steno') stenoSelect.innerHTML += option;
         if (test.type === 'typing') typingSelect.innerHTML += option;
