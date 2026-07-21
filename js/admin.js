@@ -629,13 +629,13 @@ function parseMCQText(text) {
         if (!/^Q\d+\./i.test(block)) continue;
         
         try {
-            let qText = block.match(/Q\d+\.(.*?)(?=A[\)\.])/is);
-            let optA = block.match(/A[\)\.](.*?)(?=B[\)\.])/is);
-            let optB = block.match(/B[\)\.](.*?)(?=C[\)\.])/is);
-            let optC = block.match(/C[\)\.](.*?)(?=D[\)\.])/is);
-            let optD = block.match(/D[\)\.](.*?)(?=(?:Ans|Answer)\s*:)/is);
-            let ans = block.match(/(?:Ans|Answer)\s*:\s*([A-D])/is);
-            let exp = block.match(/(?:Exp|Explanation)\s*:(.*)/is);
+            let qText = block.match(/Q\d+\.([\s\S]*?)(?=A[\)\.])/i);
+            let optA = block.match(/A[\)\.]([\s\S]*?)(?=B[\)\.])/i);
+            let optB = block.match(/B[\)\.]([\s\S]*?)(?=C[\)\.])/i);
+            let optC = block.match(/C[\)\.]([\s\S]*?)(?=D[\)\.])/i);
+            let optD = block.match(/D[\)\.]([\s\S]*?)(?=(?:Ans|Answer)\s*:)/i);
+            let ans = block.match(/(?:Ans|Answer)\s*:\s*([A-D])/i);
+            let exp = block.match(/(?:Exp|Explanation)\s*:([\s\S]*)/i);
 
             if (qText && optA && optB && optC && optD && ans) {
                 questions.push({
@@ -651,9 +651,11 @@ function parseMCQText(text) {
                 });
             } else {
                 failedBlocks++;
+                console.warn("Failed block details:", { qText, optA, optB, optC, optD, ans });
             }
         } catch(parseExc) {
             failedBlocks++;
+            console.warn("Parse exception:", parseExc);
         }
     }
     
