@@ -276,8 +276,7 @@ function createNavbar(activePage) {
     { id: 'home',      href: 'dashboard.html',    icon: '🏠', label: 'Home' },
     { id: 'steno',     href: 'steno-tests.html',  icon: '🎤', label: 'Steno Dictation' },
     { id: 'typing',    href: 'typing-tests.html', icon: '⌨️', label: 'Typing Test' },
-    { id: 'word',      href: 'word-tests.html',   icon: '📝', label: 'Word Efficiency' },
-    { id: 'mcq',       href: 'mcq-tests.html',    icon: '📋', label: 'MCQ Tests' },
+    { id: 'word',      href: 'word-tests.html',   icon: '📄', label: 'Word Efficiency' },
     { id: 'live-exams',href: 'live-exams.html',   icon: '⏱️', label: 'Live Exam' },
     { id: 'scorecard', href: 'scorecard.html',    icon: '📊', label: 'Scorecard' },
     { id: 'contact',   href: 'contact.html',      icon: '✉️', label: 'Contact' }

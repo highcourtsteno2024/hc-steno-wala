@@ -29,7 +29,6 @@
                 <select id="admin-section-select" class="form-control" onchange="showAdminSection(this.value)" style="min-width: 200px;">
                     <option value="section-dashboard">📊 Dashboard</option>
                     <option value="section-tests">📝 Manage Tests</option>
-                    <option value="section-mcq">📋 Manage MCQs</option>
                     <option value="section-users">👥 Manage Users</option>
                 </select>
             </div>
@@ -95,79 +94,6 @@
                         </thead>
                         <tbody id="admin-live-exams-body">
                             <tr><td colspan="3" class="text-center">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section: MCQs -->
-        <div id="section-mcq" class="admin-section" style="display: none;">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3>Bulk Upload MCQs (Word File)</h3>
-                </div>
-                <form id="mcq-upload-form" style="display: flex; flex-direction: column; gap: 15px;">
-                    <div class="form-group" style="display: flex; gap: 15px;">
-                        <div style="flex: 1;">
-                            <label>Category</label>
-                            <select id="mcq-category" class="form-control" required>
-                                <option value="">-- Select Category --</option>
-                                <option value="Raj LDC">Raj LDC</option>
-                                <option value="Raj HC LDC">Raj HC LDC</option>
-                                <option value="Raj 4th Grade">Raj 4th Grade</option>
-                                <option value="RAS">RAS</option>
-                                <option value="1st Grade">1st Grade</option>
-                                <option value="2nd Grade">2nd Grade</option>
-                                <option value="VDO">VDO</option>
-                                <option value="Lab Assistant">Lab Assistant</option>
-                                <option value="Other">Other / Miscellaneous</option>
-                            </select>
-                        </div>
-                        <div style="flex: 2;">
-                            <label>Exam / Subject Name</label>
-                            <input type="text" id="mcq-subject-name" class="form-control" placeholder="e.g., LDC GK Mock Test 1" required>
-                        </div>
-                    </div>
-                    <div class="form-group" style="display: flex; gap: 15px;">
-                        <div style="flex: 1;">
-                            <label>Duration (Minutes)</label>
-                            <input type="number" id="mcq-duration" class="form-control" placeholder="60" required>
-                        </div>
-                        <div style="flex: 1;">
-                            <label>Negative Marking (e.g., 0.33)</label>
-                            <input type="number" id="mcq-negative-mark" class="form-control" placeholder="0" step="0.01" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Select Word File (.docx) <span class="text-secondary">(Optional if pasting text below)</span></label>
-                        <input type="file" id="mcq-word-file" class="form-control" accept=".docx">
-                        <small class="text-secondary">Format must be: Q1. ..., A) ..., B) ..., C) ..., D) ..., Ans: ..., Exp: ...</small>
-                    </div>
-                    <div class="form-group">
-                        <label>OR Paste Raw Text Here</label>
-                        <textarea id="mcq-raw-text" class="form-control" rows="6" placeholder="Paste your formatted text here if Word file upload fails..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="mcq-upload-btn">Process and Upload</button>
-                    <div id="mcq-upload-status" style="margin-top: 10px; font-weight: bold;"></div>
-                </form>
-            </div>
-
-            <div class="card mt-4">
-                <h3>Uploaded MCQ Tests</h3>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Subject/Name</th>
-                                <th>Total Questions</th>
-                                <th>Duration</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-mcqs-body">
-                            <tr><td colspan="5" class="text-center">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
